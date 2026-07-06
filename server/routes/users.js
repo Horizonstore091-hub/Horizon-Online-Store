@@ -1,0 +1,157 @@
+const express = require('express');
+const router = express.Router();
+const init = require('../db');
+const { v4: uuidv4 } = require('uuid');
+const crypto = require('crypto');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+
+const uploadDir = path.join(__dirname, '..', '..', 'uploads');
+if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, uploadDir),
+  filename: (req, file, cb) => { const ext = path.extname(file.originalname); cb(null, `${uuidv4()}${ext}`); }
+});
+const upload = multer({ storage });
+
+function hash(pw) {
+  return pw;
+}
+
+router.post('/register', async (req, res) => {
+  try {
+    const { name, email, password, phone } = req.body;
+    if (!name || !email || !password) return res.status(400).json({ error: 'Name, email and password required' });
+    const db = await init();
+    const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(email);
+    if (existing) return res.status(409).json({ error: 'Email already registered' });
+    const id = uuidv4();
+    const referralCode = 'HZN' + id.slice(0, 6).toUpperCase();
+    db.prepare('INSERT INTO users (id, name, email, password, phone, referralCode) VALUES (?, ?, ?, ?, ?, ?)').run(id, name, email, hash(password), phone || null, referralCode);
+    const user = db.prepare('SELECT id, name, email, phone, avatar, role, addresses, walletBalance, loyaltyPoints, referralCode, createdAt FROM users WHERE id = ?').get(id);
+    res.status(201).json({ user, token: id });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+router.post('/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
+    const db = await init();
+    const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
+    if (!user || user.password !== hash(password)) return res.status(401).json({ error: 'Invalid email or password' });
+    if (user.isSuspended) return res.status(403).json({ error: 'Account suspended. Contact support.' });
+    db.prepare('UPDATE users SET lastLogin = datetime(\'now\') WHERE id = ?').run(user.id);
+    const { password: _, ...safe } = user;
+    res.json({ user: safe, token: user.id });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+router.get('/:id', async (req, res) => {
+  try {
+    const db = await init();
+    const user = db.prepare('SELECT id, name, email, phone, avatar, role, addresses, isSuspended, emailVerified, kycStatus, walletBalance, loyaltyPoints, referralCode, createdAt FROM users WHERE id = ?').get(req.params.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    if (user.addresses && typeof user.addresses === 'string') user.addresses = JSON.parse(user.addresses);
+    res.json(user);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+router.put('/:id', upload.single('avatar'), async (req, res) => {
+  try {
+    const db = await init();
+    const { name, phone, addresses } = req.body;
+    const existing = db.prepare('SELECT id FROM users WHERE id = ?').get(req.params.id);
+    if (!existing) return res.status(404).json({ error: 'Not found' });
+    if (name) db.prepare('UPDATE users SET name = ? WHERE id = ?').run(name, req.params.id);
+    if (phone !== undefined) db.prepare('UPDATE users SET phone = ? WHERE id = ?').run(phone, req.params.id);
+    if (addresses) db.prepare('UPDATE users SET addresses = ? WHERE id = ?').run(JSON.stringify(addresses), req.params.id);
+    if (req.file) db.prepare('UPDATE users SET avatar = ? WHERE id = ?').run(`/uploads/${req.file.filename}`, req.params.id);
+    const user = db.prepare('SELECT id, name, email, phone, avatar, role, addresses, walletBalance, loyaltyPoints, referralCode, createdAt FROM users WHERE id = ?').get(req.params.id);
+    res.json(user);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+router.get('/:id/orders', async (req, res) => {
+  try {
+    const db = await init();
+    const orders = db.prepare('SELECT * FROM orders WHERE userId = ? ORDER BY createdAt DESC').all(req.params.id);
+    res.json(orders);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+router.get('/:id/notifications', async (req, res) => {
+  try {
+    const db = await init();
+    const notifs = db.prepare('SELECT * FROM notifications WHERE userId = ? OR userId IS NULL ORDER BY createdAt DESC LIMIT 20').all(req.params.id);
+    res.json(notifs);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+router.put('/:id/notifications/:nid/read', async (req, res) => {
+  try { const db = await init(); db.prepare('UPDATE notifications SET read = 1 WHERE id = ? AND userId = ?').run(req.params.nid, req.params.id); res.json({ message: 'Marked read' }); }
+  catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+router.put('/:id/wallet', async (req, res) => {
+  try {
+    const db = await init();
+    const user = db.prepare('SELECT id, walletBalance FROM users WHERE id = ?').get(req.params.id);
+    if (!user) return res.status(404).json({ error: 'Not found' });
+    const { amount } = req.body;
+    if (!amount || amount <= 0) return res.status(400).json({ error: 'Invalid amount' });
+    // Create pending deposit for admin approval
+    const depositId = uuidv4();
+    const { paymentMethod } = req.body;
+    db.prepare('INSERT INTO deposits (id, userId, amount, paymentMethod, status) VALUES (?, ?, ?, ?, ?)').run(depositId, req.params.id, parseFloat(amount), paymentMethod || 'card', 'pending');
+    db.prepare('INSERT INTO notifications (id, userId, title, message) VALUES (?, ?, ?, ?)').run(uuidv4(), req.params.id, 'Deposit Pending', `Your deposit of $${amount} is pending admin approval.`);
+    res.json({ message: 'Deposit submitted for approval', depositId });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+router.put('/:id/password', async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) return res.status(400).json({ error: 'Current and new password required' });
+    const db = await init();
+    const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.params.id);
+    if (!user) return res.status(404).json({ error: 'Not found' });
+    if (user.password !== hash(currentPassword)) return res.status(401).json({ error: 'Current password is incorrect' });
+    if (newPassword.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    db.prepare('UPDATE users SET password = ? WHERE id = ?').run(hash(newPassword), req.params.id);
+    res.json({ message: 'Password updated' });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+router.post('/forgot-password', async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: 'Email required' });
+    const db = await init();
+    const user = db.prepare('SELECT id FROM users WHERE email = ?').get(email);
+    if (!user) return res.status(404).json({ error: 'No account with that email' });
+    const token = uuidv4();
+    const expires = new Date(Date.now() + 3600000).toISOString();
+    db.prepare('UPDATE users SET resetToken = ?, resetExpires = ? WHERE id = ?').run(token, expires, user.id);
+    console.log(`\n=== PASSWORD RESET TOKEN for ${email} ===`);
+    console.log(`Token: ${token}`);
+    console.log(`Reset URL: http://localhost:5000/reset-password/${token}`);
+    console.log('=========================================\n');
+    res.json({ message: 'If an account with that email exists, a reset link has been sent.' });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+router.post('/reset-password', async (req, res) => {
+  try {
+    const { token, password } = req.body;
+    if (!token || !password) return res.status(400).json({ error: 'Token and password required' });
+    const db = await init();
+    const user = db.prepare('SELECT * FROM users WHERE resetToken = ? AND resetExpires > datetime(\'now\')').get(token);
+    if (!user) return res.status(400).json({ error: 'Invalid or expired token' });
+    db.prepare('UPDATE users SET password = ?, resetToken = NULL, resetExpires = NULL WHERE id = ?').run(hash(password), user.id);
+    res.json({ message: 'Password reset successfully' });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+module.exports = router;

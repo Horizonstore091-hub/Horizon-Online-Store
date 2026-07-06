@@ -1,0 +1,36 @@
+const express = require('express');
+const router = express.Router();
+const init = require('../db');
+const { v4: uuidv4 } = require('uuid');
+
+router.post('/', async (req, res) => {
+  try {
+    const { userId, customerName, customerEmail, customerAddress, customerCity, customerZip, customerPhone, items, total, subtotal, shippingMethod, shippingCost, couponCode, discount, paymentMethod, notes } = req.body;
+    if (!customerName || !customerEmail || !customerAddress || !customerCity || !customerZip || !items) return res.status(400).json({ error: 'Required fields missing' });
+    const db = await init();
+    const id = uuidv4();
+    const orderNumber = 'HZN-' + id.slice(0, 8).toUpperCase();
+    db.prepare(`INSERT INTO orders (id, userId, orderNumber, customerName, customerEmail, customerAddress, customerCity, customerZip, customerPhone, items, total, subtotal, shippingMethod, shippingCost, couponCode, discount, paymentMethod, notes)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(id, userId || null, orderNumber, customerName, customerEmail, customerAddress, customerCity, customerZip, customerPhone || null, JSON.stringify(items), parseFloat(total || 0), subtotal ? parseFloat(subtotal) : parseFloat(total || 0), shippingMethod || 'standard', shippingCost ? parseFloat(shippingCost) : 0, couponCode || null, discount ? parseFloat(discount) : 0, paymentMethod || 'card', notes || null);
+    db.prepare('INSERT INTO order_tracking (id, orderId, status, note) VALUES (?, ?, ?, ?)').run(uuidv4(), id, 'pending', 'Order placed');
+    const order = db.prepare('SELECT * FROM orders WHERE id = ?').get(id);
+    res.status(201).json(order);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+router.get('/', async (req, res) => {
+  try { const db = await init(); const { userId } = req.query; let orders; if (userId) orders = db.prepare('SELECT * FROM orders WHERE userId = ? ORDER BY createdAt DESC').all(userId); else orders = db.prepare('SELECT * FROM orders ORDER BY createdAt DESC').all(); res.json(orders); }
+  catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+router.get('/tracking/:orderId', async (req, res) => {
+  try { const db = await init(); const tracking = db.prepare('SELECT * FROM order_tracking WHERE orderId = ? ORDER BY createdAt ASC').all(req.params.orderId); res.json(tracking); }
+  catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+router.get('/:id', async (req, res) => {
+  try { const db = await init(); const order = db.prepare('SELECT * FROM orders WHERE id = ?').get(req.params.id); if (!order) return res.status(404).json({ error: 'Order not found' }); res.json(order); }
+  catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+module.exports = router;
