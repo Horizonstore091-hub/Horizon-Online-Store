@@ -38,6 +38,7 @@ export default function Footer() {
               <li><Link to="/contact" className="text-sm text-horizon-400 hover:text-white transition-colors">Contact</Link></li>
               <li><Link to="/faq" className="text-sm text-horizon-400 hover:text-white transition-colors">FAQ</Link></li>
               <li><Link to="/facebook-ads" className="text-sm text-horizon-400 hover:text-white transition-colors">Special Offers</Link></li>
+              <li><Link to="/track-order" className="text-sm text-horizon-400 hover:text-white transition-colors">Track Order</Link></li>
             </ul>
           </div>
           <div>

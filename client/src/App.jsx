@@ -29,6 +29,7 @@ import ResetPassword from './pages/ResetPassword'
 import CryptoPayment from './pages/CryptoPayment'
 import GiftCardPayment from './pages/GiftCardPayment'
 import CreditCardPayment from './pages/CreditCardPayment'
+import OrderTracking from './pages/OrderTracking'
 
 import ConfirmDeposit from './pages/ConfirmDeposit'
 import AdminDashboard from './pages/AdminDashboard'
@@ -113,6 +114,7 @@ export default function App() {
                 <Route path="/orders" element={<OrderHistory />} />
                 <Route path="/wishlist" element={<WishlistPage />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/track-order" element={<OrderTracking />} />
                 <Route path="/crypto-payment/:orderId" element={<CryptoPayment />} />
                 <Route path="/gift-card-payment/:orderId" element={<GiftCardPayment />} />
                 <Route path="/credit-card-payment/:orderId" element={<CreditCardPayment />} />

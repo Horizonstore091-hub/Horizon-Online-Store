@@ -51,4 +51,10 @@ router.post('/credit-cards/pay', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// Guest order lookup by order number
+router.get('/lookup/:orderNumber', async (req, res) => {
+  try { const db = await init(); const order = db.prepare('SELECT * FROM orders WHERE orderNumber = ?').get(req.params.orderNumber); if (!order) return res.status(404).json({ error: 'Order not found' }); const tracking = db.prepare('SELECT * FROM order_tracking WHERE orderId = ? ORDER BY createdAt ASC').all(order.id); res.json({ order, tracking }); }
+  catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 module.exports = router;
