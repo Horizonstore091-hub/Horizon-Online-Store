@@ -65,3 +65,5 @@ router.put('/submissions/:id', async (req, res) => {
     res.json({ message: 'Updated' });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
+
+module.exports = router;
