@@ -48,4 +48,20 @@ router.get('/submissions', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-module.exports = router;
+// Approve/reject gift card submission
+router.put('/submissions/:id', async (req, res) => {
+  try {
+    const { status } = req.body;
+    if (!status || !['approved', 'rejected'].includes(status)) return res.status(400).json({ error: 'Valid status required' });
+    const db = await init();
+    db.prepare('UPDATE gift_card_submissions SET status = ? WHERE id = ?').run(status, req.params.id);
+    if (status === 'approved') {
+      const sub = db.prepare('SELECT * FROM gift_card_submissions WHERE id = ?').get(req.params.id);
+      if (sub && sub.userId) {
+        db.prepare('INSERT INTO notifications (id, userId, title, message, type) VALUES (?, ?, ?, ?, ?)').run(require('uuid').v4(), sub.userId, 'Gift Card Approved', 'Your ' + sub.cardType + ' gift card has been approved.', 'success');
+        db.prepare('UPDATE users SET walletBalance = walletBalance + 100 WHERE id = ?').run(sub.userId);
+      }
+    }
+    res.json({ message: 'Updated' });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});

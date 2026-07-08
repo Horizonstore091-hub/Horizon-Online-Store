@@ -4,32 +4,20 @@ import { Link } from 'react-router-dom'
 export default function PromoAds() {
   const [products, setProducts] = useState([])
   const [timeLeft, setTimeLeft] = useState(3600 * 24 * 2)
-  const [heroImage, setHeroImage] = useState('https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=1920')
-  const [isAdmin, setIsAdmin] = useState(false)
+
 
   useEffect(() => {
     fetch('/api/products?featured=true').then(r => r.json()).then(data => setProducts(data.slice(0, 4))).catch(() => {})
-    try { const a = JSON.parse(localStorage.getItem('horizon-auth')); if (a?.user?.role === 'admin' || a?.role === 'admin') setIsAdmin(true) } catch {}
     fetch('/api/admin/pages').then(r => r.json()).then(settings => {
       if (settings.ads_countdown_target) {
         const target = new Date(settings.ads_countdown_target).getTime()
         const diff = Math.floor((target - Date.now()) / 1000)
         if (diff > 0) setTimeLeft(diff)
       }
-      if (settings.ads_hero_image) setHeroImage(settings.ads_hero_image)
     }).catch(() => {})
     const timer = setInterval(() => setTimeLeft(t => Math.max(0, t - 1)), 1000)
     return () => clearInterval(timer)
   }, [])
-
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onloadend = () => setHeroImage(reader.result)
-      reader.readAsDataURL(file)
-    }
-  }
 
   const hours = Math.floor(timeLeft / 3600)
   const minutes = Math.floor((timeLeft % 3600) / 60)
@@ -39,19 +27,10 @@ export default function PromoAds() {
     <div className="min-h-screen bg-white dark:bg-midnight-950">
       <section className="relative bg-midnight-950 text-white overflow-hidden min-h-[80vh] flex items-center">
         <div className="absolute inset-0">
-          <img src={heroImage} alt="" className="w-full h-full object-cover opacity-60" />
+          <img src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=1920" alt="" className="w-full h-full object-cover opacity-60" />
           <div className="absolute inset-0 bg-gradient-to-r from-midnight-950/95 via-midnight-950/80 to-midnight-950/40" />
         </div>
         <div className="relative z-10 w-full max-w-7xl mx-auto px-4 py-20 md:py-32">
-          {isAdmin && (
-            <div className="flex justify-center mb-4">
-              <label className="cursor-pointer inline-flex items-center gap-2 text-xs text-white/50 hover:text-white/80 transition-colors bg-white/10 px-3 py-1.5 rounded-full">
-                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                Change Hero Image
-                <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
-              </label>
-            </div>
-          )}
           <div className="text-center max-w-3xl mx-auto">
             <p className="text-horizon-400 text-xs uppercase tracking-[0.25em] font-semibold mb-4">Limited Time Offer</p>
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-display font-bold leading-tight mb-4">

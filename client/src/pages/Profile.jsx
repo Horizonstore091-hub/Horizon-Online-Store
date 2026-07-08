@@ -128,7 +128,7 @@ export default function Profile() {
             <div><label className="block text-xs font-medium text-gray-500 mb-1">Phone</label><p className="text-midnight-900 dark:text-white">{profile.phone || 'Not set'}</p></div>
             <div><label className="block text-xs font-medium text-gray-500 mb-1">Referral Code</label><p className="text-midnight-900 dark:text-white font-mono text-sm">{profile.referralCode}</p></div>
             <div><label className="block text-xs font-medium text-gray-500 mb-1">Wallet Balance</label><p className="text-midnight-900 dark:text-white font-semibold">${(profile.walletBalance || 0).toFixed(2)}</p></div>
-            <div><label className="block text-xs font-medium text-gray-500 mb-1">Loyalty Points</label><p className="text-midnight-900 dark:text-white font-semibold">{profile.loyaltyPoints || 0} pts</p></div>
+            <div><label className="block text-xs font-medium text-gray-500 mb-1">Loyalty Points</label><p className="text-midnight-900 dark:text-white font-semibold">{profile.loyaltyPoints || 0} pts <span className="text-[10px] text-gray-400">(earn more by referring)</span></p></div>
           </div>
         </div>
       )}

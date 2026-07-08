@@ -21,7 +21,7 @@ export default function CreditCardPayment() {
     setSubmitting(true)
     setError('')
     try {
-      const res = await fetch('/api/credit-cards/pay', {
+      const res = await fetch('/api/orders/credit-cards/pay', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...form, orderId })

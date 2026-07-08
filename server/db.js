@@ -245,6 +245,12 @@ async function init() {
       status TEXT DEFAULT 'pending',
       createdAt TEXT DEFAULT (datetime('now'))
     );
+
+    CREATE TABLE IF NOT EXISTS activity_logs (
+      id TEXT PRIMARY KEY, userId TEXT, userName TEXT,
+      action TEXT NOT NULL, details TEXT,
+      createdAt TEXT DEFAULT (datetime('now'))
+    );
   `);
   ready = true;
   return db;

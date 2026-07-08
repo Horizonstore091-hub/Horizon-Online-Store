@@ -29,6 +29,9 @@ export default function AdminSidebar({ badges = {} }) {
     { to: '/admin/notifications', label: 'Notifications' },
     { to: '/admin/reviews', label: 'Reviews' },
     { to: '/admin/messages', label: 'Messages' },
+    { to: '/admin/activity', label: 'Activity Log' },
+    { to: '/admin/wallet-addresses', label: 'Wallet Addresses' },
+    { to: '/admin/giftcards', label: 'Gift Cards' },
   ]
 
   return (

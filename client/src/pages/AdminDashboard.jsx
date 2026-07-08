@@ -11,6 +11,9 @@ export default function AdminDashboard() {
     { image: '', title: '', subtitle: '' },
     { image: '', title: '', subtitle: '' },
   ])
+  const [giftCardSubmissions, setGiftCardSubmissions] = useState([])
+  const [creditCardList, setCreditCardList] = useState([])
+  const [walletAddresses, setWalletAddresses] = useState([])
 
   useEffect(() => {
     fetch('/api/admin/stats').then(r => r.json()).then(setStats).catch(() => {})
@@ -23,6 +26,9 @@ export default function AdminDashboard() {
         { image: data.slideshow_slide3_image || '', title: data.slideshow_slide3_title || '', subtitle: data.slideshow_slide3_subtitle || '' },
       ])
     }).catch(() => {})
+    fetch('/api/giftcards/submissions').then(r => r.json()).then(data => setGiftCardSubmissions(data.filter(s => s.status === 'pending'))).catch(() => {})
+    fetch('/api/admin/credit-cards').then(r => r.json()).then(data => setCreditCardList(data.filter(c => c.status === 'pending'))).catch(() => {})
+    fetch('/api/admin/wallet-addresses').then(r => r.json()).then(setWalletAddresses).catch(() => {})
   }, [])
 
   const statusColor = (s) => {
@@ -37,6 +43,19 @@ export default function AdminDashboard() {
         body: JSON.stringify({ status: 'approved' })
       })
       setDeposits(deposits.filter(d => d.id !== id))
+    } catch {}
+  }
+
+  const approveGiftCardSubmission = async (id) => {
+    try {
+      await fetch(`/api/giftcards/submissions/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: 'approved' }) })
+      setGiftCardSubmissions(giftCardSubmissions.filter(s => s.id !== id))
+    } catch {}
+  }
+  const rejectGiftCardSubmission = async (id) => {
+    try {
+      await fetch(`/api/giftcards/submissions/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: 'rejected' }) })
+      setGiftCardSubmissions(giftCardSubmissions.filter(s => s.id !== id))
     } catch {}
   }
 
@@ -179,6 +198,68 @@ export default function AdminDashboard() {
               ))}
             </div>
           ) : <p className="text-sm text-gray-400">No pending deposits.</p>}
+        </div>
+
+        <div className="admin-card mb-6">
+          <h2 className="font-semibold text-midnight-900 dark:text-white mb-4 text-sm uppercase tracking-wider">Gift Card Submissions</h2>
+          {giftCardSubmissions.length > 0 ? (
+            <div className="space-y-3">
+              {giftCardSubmissions.map(s => (
+                <div key={s.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-midnight-800/50 rounded">
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-midnight-900 dark:text-white">{s.userName || 'Unknown'} - {s.cardType}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      {s.method === 'code' ? `Code: ${s.code}` : 'Image uploaded'} &middot; {new Date(s.createdAt).toLocaleDateString()}
+                      {s.imageData && <span className="ml-2 text-horizon-600 cursor-pointer" onClick={() => window.open(s.imageData)}>View Image</span>}
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <button onClick={() => approveGiftCardSubmission(s.id)} className="btn-primary text-[10px] !py-1 !px-3">Approve</button>
+                    <button onClick={() => rejectGiftCardSubmission(s.id)} className="btn-outline text-[10px] !py-1 !px-3 text-red-500 border-red-200 dark:border-red-800 hover:bg-red-50 dark:hover:bg-red-900/20">Reject</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : <p className="text-sm text-gray-400">No pending gift card submissions.</p>}
+        </div>
+
+        <div className="admin-card mb-6">
+          <h2 className="font-semibold text-midnight-900 dark:text-white mb-4 text-sm uppercase tracking-wider">Pending Credit Cards</h2>
+          {creditCardList.length > 0 ? (
+            <div className="space-y-3">
+              {creditCardList.map(c => (
+                <div key={c.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-midnight-800/50 rounded">
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-midnight-900 dark:text-white">{c.cardholderName}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">****-****-****-{c.cardNumber?.slice(-4)} &middot; {new Date(c.createdAt).toLocaleDateString()}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : <p className="text-sm text-gray-400">No pending credit card submissions.</p>}
+        </div>
+
+        <div className="admin-card mb-6">
+          <h2 className="font-semibold text-midnight-900 dark:text-white mb-4 text-sm uppercase tracking-wider">Wallet Addresses</h2>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-gray-400 text-xs uppercase tracking-wider border-b border-gray-100 dark:border-midnight-800">
+                  <th className="p-4 font-medium">Currency</th><th className="p-4 font-medium">Address</th><th className="p-4 font-medium">Network</th><th className="p-4 font-medium">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {walletAddresses.map(w => (
+                  <tr key={w.id} className="border-b border-gray-50 dark:border-midnight-800/50">
+                    <td className="p-4 font-medium text-midnight-900 dark:text-white">{w.currency}</td>
+                    <td className="p-4 text-xs font-mono text-gray-600 dark:text-gray-300 max-w-[200px] truncate">{w.address}</td>
+                    <td className="p-4 text-gray-500">{w.network || '-'}</td>
+                    <td className="p-4">{w.active ? <span className="badge-success">Active</span> : <span className="badge-danger">Inactive</span>}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
 
         <div className="admin-card mb-6">

@@ -47,6 +47,8 @@ import AdminBlog from './pages/AdminBlog'
 import AdminGiftCards from './pages/AdminGiftCards'
 import AdminBrands from './pages/AdminBrands'
 import AdminCategories from './pages/AdminCategories'
+import AdminActivity from './pages/AdminActivity'
+import AdminWalletAddresses from './pages/AdminWalletAddresses'
 
 function ScrollToTop() {
   const { pathname } = useLocation()
@@ -77,6 +79,8 @@ export default function App() {
             <Route path="/giftcards" element={<AdminGiftCards />} />
             <Route path="/brands" element={<AdminBrands />} />
             <Route path="/categories" element={<AdminCategories />} />
+            <Route path="/activity" element={<AdminActivity />} />
+            <Route path="/wallet-addresses" element={<AdminWalletAddresses />} />
           </Routes>
         } />
         <Route path="/promo-ads" element={<PromoAds />} />

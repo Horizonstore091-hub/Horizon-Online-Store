@@ -23,6 +23,10 @@ app.use('/api/giftcards', require('./routes/giftcards'));
 app.use('/api/loyalty', require('./routes/loyalty'));
 app.use('/api/referrals', require('./routes/referrals'));
 app.use('/api/currencies', require('./routes/currencies'));
+app.use('/api/activity', require('./routes/activity'));
+
+// Auto-log helper available to all routes
+app.use((req, res, next) => { req.logActivity = async (userId, userName, action, details) => { try { const { v4: uuidv4 } = require('uuid'); const init = require('./db'); const db = await init(); db.prepare('INSERT INTO activity_logs (id, userId, userName, action, details) VALUES (?, ?, ?, ?, ?)').run(uuidv4(), userId || null, userName || '', action || '', details || ''); } catch(e){} }; next(); });
 
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '..', 'client', 'dist')));

@@ -29,4 +29,16 @@ router.post('/', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+router.put('/:id', async (req, res) => {
+  try {
+    const { title, text, approved } = req.body;
+    const db = await init();
+    if (title !== undefined) db.prepare('UPDATE reviews SET title = ? WHERE id = ?').run(title, req.params.id);
+    if (text !== undefined) db.prepare('UPDATE reviews SET text = ? WHERE id = ?').run(text, req.params.id);
+    if (approved !== undefined) db.prepare('UPDATE reviews SET approved = ? WHERE id = ?').run(approved ? 1 : 0, req.params.id);
+    const r = db.prepare('SELECT * FROM reviews WHERE id = ?').get(req.params.id);
+    res.json(r);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 module.exports = router;

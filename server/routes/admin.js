@@ -36,12 +36,13 @@ router.get('/stats', async (req, res) => {
     const orderStatusCounts = db.prepare('SELECT status, COUNT(*) as count FROM orders GROUP BY status').all();
     const lowStock = db.prepare('SELECT COUNT(*) as count FROM products WHERE stock > 0 AND stock <= lowStockAlert').get();
     const outOfStock = db.prepare('SELECT COUNT(*) as count FROM products WHERE stock = 0').get();
+    const pendingGiftCardSubmissions = db.prepare("SELECT COUNT(*) as count FROM gift_card_submissions WHERE status = 'pending'").get();
     res.json({
       totalProducts: totalProducts.count, totalOrders: totalOrders.count,
       totalUsers: totalUsers.count, revenue: totalRevenue.total,
       revenueToday: revenueToday.total, pendingOrders: pendingOrders.count,
       processingOrders: processingOrders.count, lowStock: lowStock.count,
-      outOfStock: outOfStock.count,
+      outOfStock: outOfStock.count, pendingGiftCardSubmissions: pendingGiftCardSubmissions.count,
       recentOrders, bestSellers, monthlyRevenue, orderStatusCounts
     });
   } catch (err) { res.status(500).json({ error: err.message }); }
@@ -276,14 +277,19 @@ router.delete('/site-notifications/:id', async (req, res) => {
   catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// Wallet Addresses
+// Wallet addresses (crypto payment methods)
 router.get('/wallet-addresses', async (req, res) => {
-  try { const db = await init(); const addrs = db.prepare('SELECT * FROM wallet_addresses WHERE active = 1 ORDER BY createdAt ASC').all(); res.json(addrs); }
+  try { const db = await init(); const addresses = db.prepare('SELECT * FROM wallet_addresses ORDER BY currency').all(); res.json(addresses); }
   catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 router.post('/wallet-addresses', async (req, res) => {
   try { const { currency, address, network } = req.body; if (!currency || !address) return res.status(400).json({ error: 'Currency and address required' }); const id = uuidv4(); const db = await init(); db.prepare('INSERT INTO wallet_addresses (id, currency, address, network) VALUES (?, ?, ?, ?)').run(id, currency, address, network || null); const w = db.prepare('SELECT * FROM wallet_addresses WHERE id = ?').get(id); res.status(201).json(w); }
+  catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+router.put('/wallet-addresses/:id', async (req, res) => {
+  try { const { currency, address, network, active } = req.body; const db = await init(); if (currency !== undefined) db.prepare('UPDATE wallet_addresses SET currency = ? WHERE id = ?').run(currency, req.params.id); if (address !== undefined) db.prepare('UPDATE wallet_addresses SET address = ? WHERE id = ?').run(address, req.params.id); if (network !== undefined) db.prepare('UPDATE wallet_addresses SET network = ? WHERE id = ?').run(network, req.params.id); if (active !== undefined) db.prepare('UPDATE wallet_addresses SET active = ? WHERE id = ?').run(active ? 1 : 0, req.params.id); const w = db.prepare('SELECT * FROM wallet_addresses WHERE id = ?').get(req.params.id); res.json(w); }
   catch (err) { res.status(500).json({ error: err.message }); }
 });
 
