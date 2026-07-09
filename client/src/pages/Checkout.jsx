@@ -170,7 +170,7 @@ export default function Checkout() {
                     { name: 'Cryptocurrency', type: 'crypto', instructions: 'BTC, ETH, or USDT. Recommended for fast payments.', recommended: true },
                     { name: 'Gift Card', type: 'gift_card', instructions: 'Enter your gift card code or upload an image. Recommended.', recommended: true },
                     { name: 'Wallet', type: 'wallet', instructions: 'Pay using your account wallet balance.' },
-                  ]).map(p => (
+                  ].filter(p => p.type !== 'wallet' || walletBalance === null || walletBalance > 0)).map(p => (
                     <label key={p.id || p.type} className={`flex items-start gap-3 p-3 border cursor-pointer transition-colors ${paymentMethod === p.type ? 'border-horizon-900 dark:border-horizon-100 bg-horizon-50 dark:bg-horizon-800' : 'border-horizon-200 dark:border-horizon-700 hover:border-horizon-400'}`}>
                       <input type="radio" name="payment" value={p.type} checked={paymentMethod === p.type} onChange={e => setPaymentMethod(e.target.value)} className="text-horizon-900 mt-0.5" />
                       <div className="flex-1">
@@ -179,9 +179,6 @@ export default function Checkout() {
                           {p.recommended && <span className="text-[9px] uppercase tracking-wider bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 px-1.5 py-0.5 font-semibold">Recommended</span>}
                         </div>
                         <p className="text-xs text-horizon-400 mt-0.5">{p.instructions}</p>
-                        {p.type === 'wallet' && walletBalance !== null && walletBalance <= 0 && (
-                          <p className="text-xs text-red-500 mt-1">Insufficient balance. Please deposit or choose another method.</p>
-                        )}
                       </div>
                     </label>
                   ))}
@@ -189,7 +186,7 @@ export default function Checkout() {
                 <p className="text-xs text-horizon-400 mt-3">Your payment information is processed securely via SSL encryption.</p>
               </div>
 
-              <button type="submit" disabled={placing || (paymentMethod === 'wallet' && walletBalance !== null && walletBalance <= 0)} className="btn-primary w-full disabled:opacity-50 btn-pulse">
+              <button type="submit" disabled={placing} className="btn-primary w-full disabled:opacity-50 btn-pulse">
                 {placing ? 'Processing...' : `Place Order — $${total.toFixed(2)}${shippingCost > 0 ? ` (incl. $${shippingCost} shipping)` : ''}`}
               </button>
             </div>

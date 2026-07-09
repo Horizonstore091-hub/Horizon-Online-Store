@@ -106,10 +106,23 @@ router.put('/:id/wallet', async (req, res) => {
     // Create pending deposit for admin approval
     const depositId = uuidv4();
     const { paymentMethod } = req.body;
-    db.prepare('INSERT INTO deposits (id, userId, amount, paymentMethod, status) VALUES (?, ?, ?, ?, ?)').run(depositId, req.params.id, parseFloat(amount), paymentMethod || 'card', 'pending');
+    db.prepare('INSERT INTO deposits (id, userId, amount, paymentMethod, status) VALUES (?, ?, ?, ?, ?)').run(depositId, req.params.id, parseFloat(amount), paymentMethod || 'crypto', 'pending');
     db.prepare('INSERT INTO notifications (id, userId, title, message) VALUES (?, ?, ?, ?)').run(uuidv4(), req.params.id, 'Deposit Pending', `Your deposit of $${amount} is pending admin approval.`);
     db.prepare('INSERT INTO activity_logs (id, userId, userName, action, details) VALUES (?, ?, ?, ?, ?)').run(uuidv4(), req.params.id, '', 'deposit_requested', `Deposit of $${amount} via ${paymentMethod}`);
     res.json({ message: 'Deposit submitted for approval', depositId });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// Confirm deposit (user confirms they sent payment)
+router.put('/:id/deposit/:depositId/confirm', async (req, res) => {
+  try {
+    const db = await init();
+    const deposit = db.prepare('SELECT * FROM deposits WHERE id = ? AND userId = ?').get(req.params.depositId, req.params.id);
+    if (!deposit) return res.status(404).json({ error: 'Deposit not found' });
+    if (deposit.status !== 'pending') return res.status(400).json({ error: 'Deposit already processed' });
+    db.prepare('UPDATE deposits SET status = ? WHERE id = ?').run('confirming', req.params.depositId);
+    db.prepare('INSERT INTO activity_logs (id, userId, userName, action, details) VALUES (?, ?, ?, ?, ?)').run(uuidv4(), req.params.id, '', 'deposit_confirmed', `Deposit of $${deposit.amount} confirmed by user`);
+    res.json({ message: 'Deposit confirmed' });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 

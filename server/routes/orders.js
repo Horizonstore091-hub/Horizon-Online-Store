@@ -11,7 +11,7 @@ router.post('/', async (req, res) => {
     const id = uuidv4();
     const orderNumber = 'HZN-' + id.slice(0, 8).toUpperCase();
     db.prepare(`INSERT INTO orders (id, userId, orderNumber, customerName, customerEmail, customerAddress, customerCity, customerZip, customerPhone, items, total, subtotal, shippingMethod, shippingCost, couponCode, discount, paymentMethod, notes)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(id, userId || null, orderNumber, customerName, customerEmail, customerAddress, customerCity, customerZip, customerPhone || null, JSON.stringify(items), parseFloat(total || 0), subtotal ? parseFloat(subtotal) : parseFloat(total || 0), shippingMethod || 'standard', shippingCost ? parseFloat(shippingCost) : 0, couponCode || null, discount ? parseFloat(discount) : 0, paymentMethod || 'card', notes || null);
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(id, userId || null, orderNumber, customerName, customerEmail, customerAddress, customerCity, customerZip, customerPhone || null, JSON.stringify(items), parseFloat(total || 0), subtotal ? parseFloat(subtotal) : parseFloat(total || 0), shippingMethod || 'standard', shippingCost ? parseFloat(shippingCost) : 0, couponCode || null, discount ? parseFloat(discount) : 0, paymentMethod || 'crypto', notes || null);
     db.prepare('INSERT INTO order_tracking (id, orderId, status, note) VALUES (?, ?, ?, ?)').run(uuidv4(), id, 'pending', 'Order placed');
     const order = db.prepare('SELECT * FROM orders WHERE id = ?').get(id);
     const sendEmail = require('../email');

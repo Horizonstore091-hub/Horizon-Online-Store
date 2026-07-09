@@ -53,14 +53,14 @@ export default function AdminUsers() {
   }
 
   return (
-    <div className="min-h-screen bg-horizon-50 dark:bg-horizon-900">
+    <div className="flex min-h-screen bg-gray-50 dark:bg-midnight-950">
       <AdminSidebar />
-      <div className="admin-content">
-        <h1 className="text-2xl font-display font-bold text-horizon-900 dark:text-horizon-100 mb-8">Users</h1>
-        <div className="bg-white dark:bg-horizon-800 overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-left text-horizon-400 text-[10px] uppercase tracking-wider border-b border-horizon-100 dark:border-horizon-700">
+      <div className="flex-1 p-8">
+        <h1 className="text-2xl font-bold text-midnight-900 dark:text-white mb-8">Users</h1>
+        <div className="admin-card overflow-hidden !p-0">
+          <table className="table-admin w-full text-sm">
+            <thead className="bg-gray-50 dark:bg-midnight-800/50">
+              <tr className="text-left text-gray-500 text-xs uppercase tracking-wider">
                 <th className="p-4 font-medium">Name</th>
                 <th className="p-4 font-medium">Password</th>
                 <th className="p-4 font-medium">Email</th>
@@ -71,9 +71,9 @@ export default function AdminUsers() {
                 <th className="p-4 font-medium">Actions</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-gray-100 dark:divide-midnight-800">
               {users.map(u => editing === u.id ? (
-                <tr key={u.id} className="bg-horizon-50 dark:bg-horizon-900/10 border-b border-horizon-50 dark:border-horizon-800">
+                <tr key={u.id} className="bg-gray-50 dark:bg-midnight-800/30">
                   <td className="p-2">
                     <input value={editForm.name} onChange={e => setEditForm({...editForm, name: e.target.value})} className="input-field text-xs w-full" placeholder="Name" />
                   </td>
@@ -114,27 +114,27 @@ export default function AdminUsers() {
                   </td>
                 </tr>
               ) : (
-                <tr key={u.id} className={`border-b border-horizon-50 dark:border-horizon-800 ${u.isSuspended ? 'bg-red-50 dark:bg-red-900/10' : ''}`}>
-                  <td className="p-4 text-horizon-900 dark:text-horizon-100">
+                <tr key={u.id} className={`hover:bg-gray-50 dark:hover:bg-midnight-800/30 transition-colors ${u.isSuspended ? 'bg-red-50 dark:bg-red-900/10' : ''}`}>
+                  <td className="p-4 text-midnight-900 dark:text-white">
                     {u.name}
                     {u.isSuspended && <span className="ml-2 text-[10px] uppercase tracking-wider text-red-600 dark:text-red-400 font-medium">Suspended</span>}
-                    {u.role === 'admin' && <span className="ml-2 text-[10px] uppercase tracking-wider text-horizon-600 dark:text-horizon-400 font-medium">Admin</span>}
+                    {u.role === 'admin' && <span className="ml-2 text-[10px] uppercase tracking-wider text-blue-600 dark:text-blue-400 font-medium">Admin</span>}
                   </td>
-                  <td className="p-4 text-horizon-400 font-mono text-[10px] break-all max-w-[200px]">{u.password || '--'}</td>
-                  <td className="p-4 text-horizon-600 dark:text-horizon-300">{u.email}</td>
-                  <td className="p-4 text-horizon-600 dark:text-horizon-300">{u.phone || '--'}</td>
-                  <td className="p-4 text-horizon-600 dark:text-horizon-300 capitalize">{u.role || 'customer'}</td>
-                  <td className="p-4 text-horizon-600 dark:text-horizon-300 capitalize">{u.kycStatus || 'none'}</td>
-                  <td className="p-4 text-horizon-400 text-xs">{new Date(u.createdAt).toLocaleDateString()}</td>
+                  <td className="p-4 text-gray-400 font-mono text-[10px] break-all max-w-[200px]">{u.password || '--'}</td>
+                  <td className="p-4 text-gray-600 dark:text-gray-300">{u.email}</td>
+                  <td className="p-4 text-gray-600 dark:text-gray-300">{u.phone || '--'}</td>
+                  <td className="p-4 text-gray-600 dark:text-gray-300 capitalize">{u.role || 'customer'}</td>
+                  <td className="p-4 text-gray-600 dark:text-gray-300 capitalize">{u.kycStatus || 'none'}</td>
+                  <td className="p-4 text-gray-400 text-xs">{new Date(u.createdAt).toLocaleDateString()}</td>
                   <td className="p-4 flex gap-2">
-                    <button onClick={() => openEdit(u)} className="text-[10px] uppercase tracking-wider text-horizon-600 hover:text-horizon-900 dark:hover:text-horizon-100">Edit</button>
+                    <button onClick={() => openEdit(u)} className="text-[10px] uppercase tracking-wider text-blue-500 hover:text-blue-700">Edit</button>
                     {u.role !== 'admin' && (
                       <button onClick={() => deleteUser(u.id)} className="text-[10px] uppercase tracking-wider text-red-500 hover:text-red-700">Delete</button>
                     )}
                   </td>
                 </tr>
               ))}
-              {users.length === 0 && <tr><td colSpan={8} className="p-8 text-center text-horizon-400">No users found.</td></tr>}
+              {users.length === 0 && <tr><td colSpan={8} className="p-8 text-center text-gray-400">No users found.</td></tr>}
             </tbody>
           </table>
         </div>

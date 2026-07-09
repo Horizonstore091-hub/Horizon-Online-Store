@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import AdminSidebar from '../components/AdminSidebar'
 
 export default function AdminCoupons() {
   const [coupons, setCoupons] = useState([])
@@ -32,54 +33,48 @@ export default function AdminCoupons() {
   }
 
   return (
-    <div className="min-h-screen bg-horizon-50 dark:bg-horizon-900">
+    <div className="flex min-h-screen bg-gray-50 dark:bg-midnight-950">
       <AdminSidebar />
-      <div className="admin-content max-w-4xl">
-        <h1 className="text-2xl font-display font-bold text-horizon-900 dark:text-horizon-100 mb-8">Coupons</h1>
+      <div className="flex-1 p-8">
+        <h1 className="text-2xl font-bold text-midnight-900 dark:text-white mb-8">Coupons</h1>
 
-        <div className="bg-white dark:bg-horizon-800 p-6 mb-8">
-          <h2 className="text-sm font-semibold text-horizon-900 dark:text-horizon-100 uppercase tracking-wider mb-4">Create Coupon</h2>
-          <form onSubmit={handleCreate} className="grid grid-cols-3 gap-3">
-            <input value={form.code} onChange={e => setForm({ ...form, code: e.target.value })} placeholder="Code" required className="input-field text-xs" />
-            <input value={form.discount} onChange={e => setForm({ ...form, discount: e.target.value })} placeholder="Discount" type="number" step="0.01" required className="input-field text-xs" />
-            <select value={form.type} onChange={e => setForm({ ...form, type: e.target.value })} className="input-field text-xs">
+        <form onSubmit={handleCreate} className="admin-card mb-8">
+          <h2 className="text-sm font-semibold text-midnight-900 dark:text-white mb-4 uppercase tracking-wider">Create Coupon</h2>
+          <div className="grid md:grid-cols-3 gap-3">
+            <input value={form.code} onChange={e => setForm({ ...form, code: e.target.value })} placeholder="Code" required className="input-field text-sm" />
+            <input value={form.discount} onChange={e => setForm({ ...form, discount: e.target.value })} placeholder="Discount" type="number" step="0.01" required className="input-field text-sm" />
+            <select value={form.type} onChange={e => setForm({ ...form, type: e.target.value })} className="input-field text-sm">
               <option value="percentage">Percentage</option>
               <option value="fixed">Fixed ($)</option>
             </select>
-            <input value={form.minOrder} onChange={e => setForm({ ...form, minOrder: e.target.value })} placeholder="Min order" type="number" className="input-field text-xs" />
-            <input value={form.usageLimit} onChange={e => setForm({ ...form, usageLimit: e.target.value })} placeholder="Usage limit" type="number" className="input-field text-xs" />
-            <input value={form.expiresAt} onChange={e => setForm({ ...form, expiresAt: e.target.value })} type="date" className="input-field text-xs" />
-            <button type="submit" className="btn-primary text-xs col-span-3">Create Coupon</button>
-          </form>
-        </div>
+            <input value={form.minOrder} onChange={e => setForm({ ...form, minOrder: e.target.value })} placeholder="Min order" type="number" className="input-field text-sm" />
+            <input value={form.usageLimit} onChange={e => setForm({ ...form, usageLimit: e.target.value })} placeholder="Usage limit" type="number" className="input-field text-sm" />
+            <input value={form.expiresAt} onChange={e => setForm({ ...form, expiresAt: e.target.value })} type="date" className="input-field text-sm" />
+          </div>
+          <button type="submit" className="btn-primary text-sm mt-4">Create Coupon</button>
+        </form>
 
-        <div className="bg-white dark:bg-horizon-800 overflow-hidden">
+        <div className="admin-card overflow-hidden !p-0">
           {coupons.length === 0 ? (
-            <div className="p-6 text-center text-horizon-400 text-sm">No coupons yet.</div>
+            <div className="p-8 text-center text-gray-400 text-sm">No coupons yet.</div>
           ) : (
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-left text-horizon-400 text-[10px] uppercase tracking-wider bg-horizon-50 dark:bg-horizon-700">
-                  <th className="p-4 font-medium">Code</th>
-                  <th className="p-4 font-medium">Discount</th>
-                  <th className="p-4 font-medium">Type</th>
-                  <th className="p-4 font-medium">Min Order</th>
-                  <th className="p-4 font-medium">Used</th>
-                  <th className="p-4 font-medium">Expires</th>
-                  <th className="p-4 font-medium">Actions</th>
+            <table className="table-admin w-full text-sm">
+              <thead className="bg-gray-50 dark:bg-midnight-800/50">
+                <tr className="text-left text-gray-500 text-xs uppercase tracking-wider">
+                  <th className="p-4 font-medium">Code</th><th className="p-4 font-medium">Discount</th><th className="p-4 font-medium">Type</th><th className="p-4 font-medium">Min Order</th><th className="p-4 font-medium">Used</th><th className="p-4 font-medium">Expires</th><th className="p-4 font-medium">Actions</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-gray-100 dark:divide-midnight-800">
                 {coupons.map(c => (
-                  <tr key={c.id} className="border-b border-horizon-50 dark:border-horizon-700">
-                    <td className="p-4 font-mono text-sm text-horizon-900 dark:text-horizon-100">{c.code}</td>
-                    <td className="p-4 font-medium text-horizon-900 dark:text-horizon-100">{c.type === 'percentage' ? `${c.discount}%` : `$${c.discount}`}</td>
-                    <td className="p-4 text-xs text-horizon-500">{c.type}</td>
-                    <td className="p-4 text-horizon-500">${Number(c.minOrder).toFixed(2)}</td>
-                    <td className="p-4 text-horizon-500">{c.usedCount}/{c.usageLimit || 'unlimited'}</td>
-                    <td className="p-4 text-xs text-horizon-500">{c.expiresAt ? new Date(c.expiresAt).toLocaleDateString() : 'Never'}</td>
+                  <tr key={c.id} className="hover:bg-gray-50 dark:hover:bg-midnight-800/30 transition-colors">
+                    <td className="p-4 font-mono text-sm text-midnight-900 dark:text-white">{c.code}</td>
+                    <td className="p-4 font-medium text-midnight-900 dark:text-white">{c.type === 'percentage' ? `${c.discount}%` : `$${c.discount}`}</td>
+                    <td className="p-4 text-xs text-gray-500">{c.type}</td>
+                    <td className="p-4 text-gray-500">${Number(c.minOrder).toFixed(2)}</td>
+                    <td className="p-4 text-gray-500">{c.usedCount}/{c.usageLimit || 'unlimited'}</td>
+                    <td className="p-4 text-xs text-gray-500">{c.expiresAt ? new Date(c.expiresAt).toLocaleDateString() : 'Never'}</td>
                     <td className="p-4">
-                      <button onClick={() => handleDelete(c.id)} className="text-xs text-red-400 hover:text-red-600 uppercase tracking-wider">Delete</button>
+                      <button onClick={() => handleDelete(c.id)} className="text-xs text-red-500 hover:text-red-700 uppercase tracking-wider">Delete</button>
                     </td>
                   </tr>
                 ))}
@@ -92,19 +87,3 @@ export default function AdminCoupons() {
   )
 }
 
-function AdminSidebar() {
-  return (
-    <div className="admin-sidebar">
-      <Link to="/admin" className="font-display text-xl font-bold text-white mb-10 block">HORIZON</Link>
-      <p className="text-[10px] uppercase tracking-wider text-horizon-400 mb-6">Admin Panel</p>
-      <nav className="space-y-2">
-        <Link to="/admin" className="block py-2.5 px-3 text-sm text-horizon-300 hover:text-white hover:bg-horizon-800 rounded">Dashboard</Link>
-        <Link to="/admin/products" className="block py-2.5 px-3 text-sm text-horizon-300 hover:text-white hover:bg-horizon-800 rounded">Products</Link>
-        <Link to="/admin/orders" className="block py-2.5 px-3 text-sm text-horizon-300 hover:text-white hover:bg-horizon-800 rounded">Orders</Link>
-        <Link to="/admin/coupons" className="block py-2.5 px-3 text-sm text-white bg-horizon-800 rounded">Coupons</Link>
-        <Link to="/admin/messages" className="block py-2.5 px-3 text-sm text-horizon-300 hover:text-white hover:bg-horizon-800 rounded">Messages</Link>
-      </nav>
-      <Link to="/" className="block mt-10 text-xs text-horizon-500 hover:text-horizon-300 uppercase tracking-wider">Back to Store</Link>
-    </div>
-  )
-}

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import AdminSidebar from '../components/AdminSidebar'
 
 export default function AdminAddProduct() {
   const navigate = useNavigate()
@@ -28,25 +29,25 @@ export default function AdminAddProduct() {
   }
 
   return (
-    <div className="min-h-screen bg-horizon-50 dark:bg-horizon-900">
+    <div className="flex min-h-screen bg-gray-50 dark:bg-midnight-950">
       <AdminSidebar />
-      <div className="admin-content max-w-3xl">
-        <h1 className="text-2xl font-display font-bold text-horizon-900 dark:text-horizon-100 mb-8">Add Product</h1>
-        <form onSubmit={handleSubmit} className="bg-white dark:bg-horizon-800 p-8 space-y-5">
-          <div><label className="text-xs uppercase tracking-wider text-horizon-400 font-medium block mb-1">Product Name</label><input name="name" value={form.name} onChange={handleChange} required className="input-field" /></div>
-          <div><label className="text-xs uppercase tracking-wider text-horizon-400 font-medium block mb-1">Description</label><textarea name="description" value={form.description} onChange={handleChange} required rows={4} className="input-field resize-none" /></div>
+      <div className="flex-1 p-8 max-w-4xl">
+        <h1 className="text-2xl font-bold text-midnight-900 dark:text-white mb-8">Add Product</h1>
+        <form onSubmit={handleSubmit} className="admin-card space-y-5">
+          <div><label className="text-xs font-medium text-gray-600 dark:text-gray-400 block mb-1">Product Name</label><input name="name" value={form.name} onChange={handleChange} required className="input-field w-full" /></div>
+          <div><label className="text-xs font-medium text-gray-600 dark:text-gray-400 block mb-1">Description</label><textarea name="description" value={form.description} onChange={handleChange} required rows={4} className="input-field w-full resize-none" /></div>
           <div className="grid grid-cols-2 gap-4">
-            <div><label className="text-xs uppercase tracking-wider text-horizon-400 font-medium block mb-1">Price ($)</label><input name="price" type="number" step="0.01" value={form.price} onChange={handleChange} required className="input-field" /></div>
-            <div><label className="text-xs uppercase tracking-wider text-horizon-400 font-medium block mb-1">Compare Price ($)</label><input name="comparePrice" type="number" step="0.01" value={form.comparePrice} onChange={handleChange} className="input-field" /></div>
+            <div><label className="text-xs font-medium text-gray-600 dark:text-gray-400 block mb-1">Price ($)</label><input name="price" type="number" step="0.01" value={form.price} onChange={handleChange} required className="input-field w-full" /></div>
+            <div><label className="text-xs font-medium text-gray-600 dark:text-gray-400 block mb-1">Compare Price ($)</label><input name="comparePrice" type="number" step="0.01" value={form.comparePrice} onChange={handleChange} className="input-field w-full" /></div>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <div><label className="text-xs uppercase tracking-wider text-horizon-400 font-medium block mb-1">Category</label><select name="category" value={form.category} onChange={handleChange} required className="input-field"><option value="">Select</option>{['Electronics', 'Clothing', 'Gadgets', 'Home & Kitchen', 'Beauty', 'Accessories'].map(c => <option key={c} value={c}>{c}</option>)}</select></div>
-            <div><label className="text-xs uppercase tracking-wider text-horizon-400 font-medium block mb-1">Stock</label><input name="stock" type="number" value={form.stock} onChange={handleChange} className="input-field" /></div>
+            <div><label className="text-xs font-medium text-gray-600 dark:text-gray-400 block mb-1">Category</label><select name="category" value={form.category} onChange={handleChange} required className="input-field w-full"><option value="">Select</option>{['Electronics', 'Clothing', 'Gadgets', 'Home & Kitchen', 'Beauty', 'Accessories'].map(c => <option key={c} value={c}>{c}</option>)}</select></div>
+            <div><label className="text-xs font-medium text-gray-600 dark:text-gray-400 block mb-1">Stock</label><input name="stock" type="number" value={form.stock} onChange={handleChange} className="input-field w-full" /></div>
           </div>
-          <div><label className="text-xs uppercase tracking-wider text-horizon-400 font-medium block mb-1">Features (one per line)</label><textarea name="features" value={form.features} onChange={handleChange} rows={3} className="input-field resize-none" placeholder="Swiss automatic movement&#10;Sapphire crystal glass&#10;Water resistant 100m" /></div>
-          <div><label className="text-xs uppercase tracking-wider text-horizon-400 font-medium block mb-1">Specifications (key: value, one per line)</label><textarea name="specifications" value={form.specifications} onChange={handleChange} rows={3} className="input-field resize-none" placeholder="Movement: Automatic SW200&#10;Case: 316L Stainless Steel&#10;Diameter: 40mm" /></div>
-          <div><label className="text-xs uppercase tracking-wider text-horizon-400 font-medium block mb-1">Product Image</label><input id="productImage" type="file" accept="image/*" className="text-sm text-horizon-500 file:mr-4 file:py-2 file:px-4 file:border-0 file:text-xs file:font-medium file:bg-horizon-900 file:text-white hover:file:bg-horizon-700" /></div>
-          <label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" name="featured" checked={form.featured} onChange={handleChange} className="w-4 h-4" /><span className="text-sm text-horizon-600 dark:text-horizon-300">Featured product</span></label>
+          <div><label className="text-xs font-medium text-gray-600 dark:text-gray-400 block mb-1">Features (one per line)</label><textarea name="features" value={form.features} onChange={handleChange} rows={3} className="input-field w-full resize-none" placeholder="Swiss automatic movement&#10;Sapphire crystal glass&#10;Water resistant 100m" /></div>
+          <div><label className="text-xs font-medium text-gray-600 dark:text-gray-400 block mb-1">Specifications (key: value, one per line)</label><textarea name="specifications" value={form.specifications} onChange={handleChange} rows={3} className="input-field w-full resize-none" placeholder="Movement: Automatic SW200&#10;Case: 316L Stainless Steel&#10;Diameter: 40mm" /></div>
+          <div><label className="text-xs font-medium text-gray-600 dark:text-gray-400 block mb-1">Product Image</label><input id="productImage" type="file" accept="image/*" className="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:border-0 file:text-xs file:font-medium file:bg-midnight-900 file:text-white hover:file:bg-midnight-700" /></div>
+          <label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" name="featured" checked={form.featured} onChange={handleChange} className="w-4 h-4" /><span className="text-sm text-gray-600 dark:text-gray-300">Featured product</span></label>
           <div className="flex gap-3 pt-4"><button type="submit" className="btn-primary">Create Product</button><Link to="/admin/products" className="btn-outline">Cancel</Link></div>
         </form>
       </div>
@@ -54,19 +55,3 @@ export default function AdminAddProduct() {
   )
 }
 
-function AdminSidebar() {
-  return (
-    <div className="admin-sidebar">
-      <Link to="/admin" className="font-display text-xl font-bold text-white mb-10 block">HORIZON</Link>
-      <p className="text-[10px] uppercase tracking-wider text-horizon-400 mb-6">Admin Panel</p>
-      <nav className="space-y-2">
-        <Link to="/admin" className="block py-2.5 px-3 text-sm text-horizon-300 hover:text-white hover:bg-horizon-800 rounded">Dashboard</Link>
-        <Link to="/admin/products" className="block py-2.5 px-3 text-sm text-horizon-300 hover:text-white hover:bg-horizon-800 rounded">Products</Link>
-        <Link to="/admin/products/add" className="block py-2.5 px-3 text-sm text-white bg-horizon-800 rounded">Add Product</Link>
-        <Link to="/admin/orders" className="block py-2.5 px-3 text-sm text-horizon-300 hover:text-white hover:bg-horizon-800 rounded">Orders</Link>
-        <Link to="/admin/coupons" className="block py-2.5 px-3 text-sm text-horizon-300 hover:text-white hover:bg-horizon-800 rounded">Coupons</Link>
-      </nav>
-      <Link to="/" className="block mt-10 text-xs text-horizon-500 hover:text-horizon-300 uppercase tracking-wider">Back to Store</Link>
-    </div>
-  )
-}

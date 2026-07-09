@@ -263,7 +263,7 @@ router.get('/site-notifications/all', async (req, res) => {
 });
 
 router.post('/site-notifications', async (req, res) => {
-  try { const { message, type } = req.body; if (!message) return res.status(400).json({ error: 'Message required' }); const id = uuidv4(); const db = await init(); db.prepare('INSERT INTO site_notifications (id, message, type) VALUES (?, ?, ?)').run(id, message, type || 'info'); const n = db.prepare('SELECT * FROM site_notifications WHERE id = ?').get(id); res.status(201).json(n); }
+  try { const { message, type } = req.body; if (!message) return res.status(400).json({ error: 'Message required' }); const id = uuidv4(); const db = await init(); db.prepare('INSERT INTO site_notifications (id, message, type) VALUES (?, ?, ?)').run(id, message, type || 'info'); const n = db.prepare('SELECT * FROM site_notifications WHERE id = ?').get(id); const io = req.app.get('io'); if (io) { io.emit('notification', n); } res.status(201).json(n); }
   catch (err) { res.status(500).json({ error: err.message }); }
 });
 

@@ -1,11 +1,23 @@
 import { useState } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, useNavigate, Link } from 'react-router-dom'
 
 export default function ConfirmDeposit() {
   const { orderId } = useParams()
+  const navigate = useNavigate()
   const [confirmed, setConfirmed] = useState(false)
+  const [error, setError] = useState('')
 
-  const handleConfirm = () => setConfirmed(true)
+  const handleConfirm = async () => {
+    try {
+      const auth = JSON.parse(localStorage.getItem('horizon-auth'))
+      const uid = auth?.id || auth?.user?.id
+      const res = await fetch(`/api/users/${uid}/deposit/${orderId}/confirm`, {
+        method: 'PUT'
+      })
+      if (res.ok) { setConfirmed(true) }
+      else { const d = await res.json(); setError(d.error || 'Failed to confirm') }
+    } catch { setError('Something went wrong') }
+  }
 
   if (confirmed) {
     return (
@@ -33,8 +45,9 @@ export default function ConfirmDeposit() {
           <h1 className="text-2xl font-display font-bold text-midnight-900 dark:text-white mb-2">Confirm Your Deposit</h1>
           <p className="text-xs text-gray-400 mb-2">Order: <span className="font-mono text-horizon-600 dark:text-horizon-400 font-medium">#{orderId?.slice(0, 8).toUpperCase()}</span></p>
           <p className="text-sm text-gray-500 dark:text-gray-400 mb-8">Please confirm that you have sent the exact amount to the provided wallet address. Your order will be processed after blockchain confirmation.</p>
+          {error && <p className="text-sm text-red-500 bg-red-50 dark:bg-red-900/20 rounded-xl px-4 py-2">{error}</p>}
           <div className="flex gap-3 justify-center">
-            <button onClick={handleConfirm} className="btn-primary">I've Sent the Payment</button>
+            <button onClick={handleConfirm} disabled={confirmed} className="btn-primary">{confirmed ? 'Confirmed' : "I've Sent the Payment"}</button>
             <Link to="/orders" className="btn-outline">Cancel</Link>
           </div>
         </div>

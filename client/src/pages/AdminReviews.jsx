@@ -28,36 +28,36 @@ export default function AdminReviews() {
   }
 
   return (
-    <div className="min-h-screen bg-horizon-50 dark:bg-horizon-900">
+    <div className="flex min-h-screen bg-gray-50 dark:bg-midnight-950">
       <AdminSidebar />
-      <div className="admin-content">
-        <h1 className="text-2xl font-display font-bold text-horizon-900 dark:text-horizon-100 mb-8">Customer Reviews</h1>
-        <div className="bg-white dark:bg-horizon-800 overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-left text-horizon-400 text-[10px] uppercase tracking-wider border-b border-horizon-100 dark:border-horizon-700">
+      <div className="flex-1 p-8">
+        <h1 className="text-2xl font-bold text-midnight-900 dark:text-white mb-8">Customer Reviews</h1>
+        <div className="admin-card overflow-hidden !p-0">
+          <table className="table-admin w-full text-sm">
+            <thead className="bg-gray-50 dark:bg-midnight-800/50">
+              <tr className="text-left text-gray-500 text-xs uppercase tracking-wider">
                 <th className="p-4 font-medium">User</th><th className="p-4 font-medium">Rating</th><th className="p-4 font-medium">Text</th><th className="p-4 font-medium">Product</th><th className="p-4 font-medium">Actions</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-gray-100 dark:divide-midnight-800">
               {reviews.map(r => (
-                <tr key={r.id} className="border-b border-horizon-50 dark:border-horizon-800">
-                  <td className="p-4 text-horizon-900 dark:text-horizon-100">{r.userName}</td>
+                <tr key={r.id} className="hover:bg-gray-50 dark:hover:bg-midnight-800/30 transition-colors">
+                  <td className="p-4 text-midnight-900 dark:text-white">{r.userName}</td>
                   <td className="p-4">
-                    <select value={r.rating} onChange={e => updateRating(r.id, e.target.value)} className="text-sm border border-horizon-200 dark:border-horizon-700 bg-white dark:bg-horizon-800 px-2 py-1">
+                    <select value={r.rating} onChange={e => updateRating(r.id, e.target.value)} className="text-sm border border-gray-200 dark:border-midnight-700 bg-white dark:bg-midnight-900 px-2 py-1 rounded text-midnight-900 dark:text-white">
                       {[1,2,3,4,5].map(n => <option key={n} value={n}>{n} star{n > 1 ? 's' : ''}</option>)}
                     </select>
                   </td>
-                  <td className="p-4 text-horizon-600 dark:text-horizon-300 text-xs max-w-xs">
+                  <td className="p-4 text-gray-600 dark:text-gray-300 text-xs max-w-xs">
                     <input defaultValue={r.text} onBlur={e => updateText(r.id, e.target.value)} className="input-field text-xs w-full" />
                   </td>
-                  <td className="p-4 text-xs text-horizon-400">{r.product || '--'}</td>
+                  <td className="p-4 text-xs text-gray-400">{r.product || '--'}</td>
                   <td className="p-4">
                     <button onClick={() => deleteReview(r.id)} className="text-[10px] uppercase tracking-wider text-red-500 hover:text-red-700">Delete</button>
                   </td>
                 </tr>
               ))}
-              {reviews.length === 0 && <tr><td colSpan={5} className="p-8 text-center text-horizon-400">No reviews yet.</td></tr>}
+              {reviews.length === 0 && <tr><td colSpan={5} className="p-8 text-center text-gray-400">No reviews yet.</td></tr>}
             </tbody>
           </table>
         </div>
