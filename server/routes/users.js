@@ -132,15 +132,18 @@ router.post('/forgot-password', async (req, res) => {
     const { email } = req.body;
     if (!email) return res.status(400).json({ error: 'Email required' });
     const db = await init();
-    const user = db.prepare('SELECT id FROM users WHERE email = ?').get(email);
-    if (!user) return res.status(404).json({ error: 'No account with that email' });
-    const token = uuidv4();
-    const expires = new Date(Date.now() + 3600000).toISOString();
-    db.prepare('UPDATE users SET resetToken = ?, resetExpires = ? WHERE id = ?').run(token, expires, user.id);
-    console.log(`\n=== PASSWORD RESET TOKEN for ${email} ===`);
-    console.log(`Token: ${token}`);
-    console.log(`Reset URL: http://localhost:5000/reset-password/${token}`);
-    console.log('=========================================\n');
+    const user = db.prepare('SELECT id, name FROM users WHERE email = ?').get(email);
+    // Always return same message regardless of whether email exists (security best practice)
+    if (user) {
+      const token = uuidv4();
+      const expires = new Date(Date.now() + 3600000).toISOString().replace('T', ' ').split('.')[0];
+      db.prepare('UPDATE users SET resetToken = ?, resetExpires = ? WHERE id = ?').run(token, expires, user.id);
+      const origin = req.headers.origin || `http://localhost:${process.env.PORT || 5000}`;
+      const resetUrl = `${origin}/reset-password/${token}`;
+      const sendEmail = require('../email');
+      sendEmail({ to: email, subject: 'Reset your Horizon password', text: `Hi ${user.name},\n\nClick this link to reset your password: ${resetUrl}\n\nThis link expires in 1 hour.\n\nIf you didn't request this, ignore this email.` }).catch(() => {});
+      console.log(`[Password Reset] Token generated for ${email}: ${resetUrl}`);
+    }
     res.json({ message: 'If an account with that email exists, a reset link has been sent.' });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
