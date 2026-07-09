@@ -6,7 +6,6 @@ import { CartProvider } from './context/CartContext'
 import { AuthProvider } from './context/AuthContext'
 import { ThemeProvider } from './context/ThemeContext'
 import { SocketProvider } from './context/SocketContext'
-import { CurrencyProvider } from './context/CurrencyContext'
 import { RecentlyViewedProvider } from './context/RecentlyViewedContext'
 import './index.css'
 
@@ -24,11 +23,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <AuthProvider>
           <CartProvider>
             <SocketProvider>
-              <CurrencyProvider>
                 <RecentlyViewedProvider>
                   <App />
                 </RecentlyViewedProvider>
-              </CurrencyProvider>
             </SocketProvider>
           </CartProvider>
         </AuthProvider>

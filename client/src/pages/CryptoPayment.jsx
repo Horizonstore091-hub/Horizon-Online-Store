@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
+import { QRCodeCanvas } from 'qrcode.react'
 
 export default function CryptoPayment() {
   const { orderId } = useParams()
@@ -54,13 +55,18 @@ export default function CryptoPayment() {
               <p className="text-sm font-semibold text-midnight-900 dark:text-white mt-1">{selected.currency}</p>
               {selected.network && <p className="text-xs text-gray-400">Network: {selected.network}</p>}
             </div>
+            <div className="flex justify-center">
+              <div className="bg-white dark:bg-white rounded-xl p-3 shadow-lg">
+                <QRCodeCanvas value={selected.address} size={180} level="M" />
+              </div>
+            </div>
             <div className="bg-horizon-50 dark:bg-midnight-800 rounded-xl p-4 border border-gray-200 dark:border-midnight-700">
               <p className="font-mono text-xs break-all text-midnight-900 dark:text-white select-all">{selected.address}</p>
             </div>
             <button onClick={copyAddress} className="btn-primary w-full">
               {copied ? 'Address Copied!' : 'Copy Wallet Address'}
             </button>
-            <p className="text-xs text-gray-400 text-center">Send the exact order amount to the address above. Your order will be processed once the transaction is confirmed.</p>
+            <p className="text-xs text-gray-400 text-center">Scan the QR code or copy the address above. Send the exact order amount. Your order will be processed once the transaction is confirmed.</p>
             <div className="flex gap-3">
               <button onClick={() => { setSelected(null); setCopied(false) }} className="btn-outline text-sm flex-1">Back</button>
               <Link to={`/confirm-deposit/${orderId}`} className="btn-primary text-sm flex-1 text-center">I've Sent Payment</Link>

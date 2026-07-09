@@ -25,6 +25,11 @@ export default function AdminGiftCards() {
     load();
   };
 
+  const deleteCard = async (id) => {
+    if (!confirm('Delete this gift card?')) return;
+    await fetch(`/api/admin/giftcards/${id}`, { method: 'DELETE' }); load();
+  };
+
   return (
     <div className="flex min-h-screen bg-gray-50 dark:bg-midnight-950">
       <AdminSidebar />
@@ -68,9 +73,12 @@ export default function AdminGiftCards() {
                     <td className="p-4 text-gray-500">{c.senderName || '-'}</td>
                     <td className="p-4">{c.active ? <span className="badge-success">Active</span> : <span className="badge-danger">Used</span>}</td>
                     <td className="p-4 text-right">
-                      <button onClick={() => toggleActive(c.id, c.active)} className={`transition-colors ${c.active ? 'text-red-500 hover:text-red-600' : 'text-emerald-500 hover:text-emerald-600'}`}>
-                        {c.active ? 'Deactivate' : 'Activate'}
-                      </button>
+                      <div className="flex gap-2 justify-end">
+                        <button onClick={() => toggleActive(c.id, c.active)} className={`text-[10px] uppercase tracking-wider transition-colors ${c.active ? 'text-red-500 hover:text-red-600' : 'text-emerald-500 hover:text-emerald-600'}`}>
+                          {c.active ? 'Deactivate' : 'Activate'}
+                        </button>
+                        <button onClick={() => deleteCard(c.id)} className="text-[10px] uppercase tracking-wider text-red-500 hover:text-red-700">Delete</button>
+                      </div>
                     </td>
                   </tr>
                 ))}
