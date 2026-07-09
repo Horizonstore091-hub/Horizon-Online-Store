@@ -23,6 +23,7 @@ import WishlistPage from './pages/WishlistPage'
 import Blog from './pages/Blog'
 import BlogPost from './pages/BlogPost'
 import PromoAds from './pages/PromoAds'
+import FacebookAds from './pages/FacebookAds'
 import AdPage from './pages/AdPage'
 import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
@@ -91,7 +92,7 @@ export default function App() {
           </Routes>
         } />
         <Route path="/promo-ads" element={<PromoAds />} />
-        <Route path="/facebook-ads" element={<PromoAds />} />
+        <Route path="/facebook-ads" element={<FacebookAds />} />
         <Route path="/ads/:slug" element={<AdPage />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="*" element={
@@ -103,6 +104,7 @@ export default function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/shop" element={<Shop />} />
                 <Route path="/shop/:category" element={<Shop />} />
+
                 <Route path="/product/:id" element={<ProductDetail />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/checkout" element={<Checkout />} />
