@@ -80,8 +80,6 @@ export default function Checkout() {
           navigate(`/crypto-payment/${order.id}`)
         } else if (paymentMethod === 'gift_card') {
           navigate(`/gift-card-payment/${order.id}`)
-        } else if (paymentMethod === 'card') {
-          navigate(`/credit-card-payment/${order.id}`)
         } else if (paymentMethod === 'wallet') {
           setOrderId(`#HZN-${order.id.slice(0, 8).toUpperCase()}`)
           setDone(true)
@@ -171,7 +169,6 @@ export default function Checkout() {
                   {(paymentMethods.filter(p => p.enabled).length > 0 ? paymentMethods.filter(p => p.enabled) : [
                     { name: 'Cryptocurrency', type: 'crypto', instructions: 'BTC, ETH, or USDT. Recommended for fast payments.', recommended: true },
                     { name: 'Gift Card', type: 'gift_card', instructions: 'Enter your gift card code or upload an image. Recommended.', recommended: true },
-                    { name: 'Credit Card', type: 'card', instructions: 'Pay with your credit or debit card.' },
                     { name: 'Wallet', type: 'wallet', instructions: 'Pay using your account wallet balance.' },
                   ]).map(p => (
                     <label key={p.id || p.type} className={`flex items-start gap-3 p-3 border cursor-pointer transition-colors ${paymentMethod === p.type ? 'border-horizon-900 dark:border-horizon-100 bg-horizon-50 dark:bg-horizon-800' : 'border-horizon-200 dark:border-horizon-700 hover:border-horizon-400'}`}>

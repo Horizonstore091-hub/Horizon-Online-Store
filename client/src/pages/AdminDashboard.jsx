@@ -12,7 +12,7 @@ export default function AdminDashboard() {
     { image: '', title: '', subtitle: '' },
   ])
   const [giftCardSubmissions, setGiftCardSubmissions] = useState([])
-  const [creditCardList, setCreditCardList] = useState([])
+  const [cryptoPayments, setCryptoPayments] = useState([])
   const [walletAddresses, setWalletAddresses] = useState([])
 
   useEffect(() => {
@@ -27,7 +27,7 @@ export default function AdminDashboard() {
       ])
     }).catch(() => {})
     fetch('/api/giftcards/submissions').then(r => r.json()).then(data => setGiftCardSubmissions(data.filter(s => s.status === 'pending'))).catch(() => {})
-    fetch('/api/admin/credit-cards').then(r => r.json()).then(data => setCreditCardList(data.filter(c => c.status === 'pending'))).catch(() => {})
+    fetch('/api/admin/crypto-payments').then(r => r.json()).then(data => setCryptoPayments(data.filter(c => c.status === 'pending'))).catch(() => {})
     fetch('/api/admin/wallet-addresses').then(r => r.json()).then(setWalletAddresses).catch(() => {})
   }, [])
 
@@ -224,19 +224,19 @@ export default function AdminDashboard() {
         </div>
 
         <div className="admin-card mb-6">
-          <h2 className="font-semibold text-midnight-900 dark:text-white mb-4 text-sm uppercase tracking-wider">Pending Credit Cards</h2>
-          {creditCardList.length > 0 ? (
+          <h2 className="font-semibold text-midnight-900 dark:text-white mb-4 text-sm uppercase tracking-wider">Pending Crypto Payments</h2>
+          {cryptoPayments.length > 0 ? (
             <div className="space-y-3">
-              {creditCardList.map(c => (
+              {cryptoPayments.map(c => (
                 <div key={c.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-midnight-800/50 rounded">
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-midnight-900 dark:text-white">{c.cardholderName}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">****-****-****-{c.cardNumber?.slice(-4)} &middot; {new Date(c.createdAt).toLocaleDateString()}</p>
+                    <p className="text-sm font-medium text-midnight-900 dark:text-white">{c.userName || 'Unknown'} - {c.currency}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">${Number(c.amount).toFixed(2)} &middot; {new Date(c.createdAt).toLocaleDateString()}</p>
                   </div>
                 </div>
               ))}
             </div>
-          ) : <p className="text-sm text-gray-400">No pending credit card submissions.</p>}
+          ) : <p className="text-sm text-gray-400">No pending crypto payments.</p>}
         </div>
 
         <div className="admin-card mb-6">

@@ -251,6 +251,81 @@ async function init() {
       action TEXT NOT NULL, details TEXT,
       createdAt TEXT DEFAULT (datetime('now'))
     );
+
+    CREATE TABLE IF NOT EXISTS crypto_payments (
+      id TEXT PRIMARY KEY, orderId TEXT, userId TEXT,
+      currency TEXT NOT NULL, amount REAL NOT NULL,
+      walletAddress TEXT, txHash TEXT,
+      status TEXT DEFAULT 'pending',
+      createdAt TEXT DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS abandoned_carts (
+      id TEXT PRIMARY KEY, userId TEXT, email TEXT,
+      items TEXT NOT NULL, subtotal REAL DEFAULT 0,
+      discount REAL DEFAULT 0, couponCode TEXT,
+      shippingMethod TEXT DEFAULT 'standard',
+      status TEXT DEFAULT 'active',
+      reminderSent INTEGER DEFAULT 0,
+      createdAt TEXT DEFAULT (datetime('now')),
+      updatedAt TEXT DEFAULT (datetime('now')),
+      FOREIGN KEY (userId) REFERENCES users(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS addresses (
+      id TEXT PRIMARY KEY, userId TEXT NOT NULL,
+      label TEXT DEFAULT 'Home',
+      fullName TEXT NOT NULL, street TEXT NOT NULL,
+      city TEXT NOT NULL, state TEXT, zip TEXT NOT NULL,
+      country TEXT DEFAULT 'US', phone TEXT,
+      isDefault INTEGER DEFAULT 0,
+      createdAt TEXT DEFAULT (datetime('now')),
+      FOREIGN KEY (userId) REFERENCES users(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS newsletter_subscribers (
+      id TEXT PRIMARY KEY, email TEXT UNIQUE NOT NULL,
+      name TEXT, source TEXT DEFAULT 'checkout',
+      subscribed INTEGER DEFAULT 1,
+      createdAt TEXT DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS social_logins (
+      id TEXT PRIMARY KEY, userId TEXT NOT NULL,
+      provider TEXT NOT NULL, providerId TEXT NOT NULL,
+      email TEXT, name TEXT, avatar TEXT,
+      createdAt TEXT DEFAULT (datetime('now')),
+      FOREIGN KEY (userId) REFERENCES users(id),
+      UNIQUE(provider, providerId)
+    );
+
+    CREATE TABLE IF NOT EXISTS page_meta (
+      id TEXT PRIMARY KEY, page TEXT UNIQUE NOT NULL,
+      title TEXT, description TEXT, ogImage TEXT,
+      updatedAt TEXT DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS bulk_pricing (
+      id TEXT PRIMARY KEY, productId TEXT NOT NULL,
+      minQty INTEGER NOT NULL, maxQty INTEGER,
+      pricePerUnit REAL NOT NULL,
+      createdAt TEXT DEFAULT (datetime('now')),
+      FOREIGN KEY (productId) REFERENCES products(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS recently_viewed (
+      id TEXT PRIMARY KEY, userId TEXT NOT NULL,
+      productId TEXT NOT NULL, viewedAt TEXT DEFAULT (datetime('now')),
+      FOREIGN KEY (userId) REFERENCES users(id),
+      FOREIGN KEY (productId) REFERENCES products(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS push_subscriptions (
+      id TEXT PRIMARY KEY, userId TEXT NOT NULL,
+      endpoint TEXT NOT NULL, p256dh TEXT, auth TEXT,
+      createdAt TEXT DEFAULT (datetime('now')),
+      FOREIGN KEY (userId) REFERENCES users(id)
+    );
   `);
   ready = true;
   return db;

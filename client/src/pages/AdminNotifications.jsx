@@ -8,7 +8,7 @@ export default function AdminNotifications() {
   const [badges, setBadges] = useState({})
 
   useEffect(() => {
-    fetch('/api/admin/notifications/all').then(r => r.json()).then(setNotifs).catch(() => {})
+    fetch('/api/admin/site-notifications/all').then(r => r.json()).then(setNotifs).catch(() => {})
     fetch('/api/admin/deposits?status=pending')
       .then(r => r.json())
       .then(data => setBadges(b => ({ ...b, Payments: data.length || 0 })))
@@ -22,21 +22,21 @@ export default function AdminNotifications() {
   const addNotif = e => {
     e.preventDefault()
     if (!message.trim()) return
-    fetch('/api/admin/notifications', {
+    fetch('/api/admin/site-notifications', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message, type })
     }).then(r => r.json()).then(n => { setNotifs([n, ...notifs]); setMessage('') }).catch(() => {})
   }
 
   const toggleNotif = (id, active) => {
-    fetch(`/api/admin/notifications/${id}`, {
+    fetch(`/api/admin/site-notifications/${id}`, {
       method: 'PUT', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ active: !active })
     }).then(r => r.json()).then(updated => setNotifs(notifs.map(n => n.id === updated.id ? updated : n))).catch(() => {})
   }
 
   const deleteNotif = id => {
-    fetch(`/api/admin/notifications/${id}`, { method: 'DELETE' }).then(() => setNotifs(notifs.filter(n => n.id !== id))).catch(() => {})
+    fetch(`/api/admin/site-notifications/${id}`, { method: 'DELETE' }).then(() => setNotifs(notifs.filter(n => n.id !== id))).catch(() => {})
   }
 
   return (

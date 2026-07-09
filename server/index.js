@@ -4,6 +4,10 @@ const path = require('path');
 const fs = require('fs');
 const { fork } = require('child_process');
 const app = express();
+const http = require('http');
+const { Server } = require('socket.io');
+const server = http.createServer(app);
+const io = new Server(server, { cors: { origin: '*', methods: ['GET', 'POST', 'PUT', 'DELETE'] } });
 const PORT = process.env.PORT || 5000;
 
 app.use(cors());
@@ -25,6 +29,24 @@ app.use('/api/referrals', require('./routes/referrals'));
 app.use('/api/currencies', require('./routes/currencies'));
 app.use('/api/activity', require('./routes/activity'));
 
+// Socket.IO
+io.on('connection', (socket) => {
+  console.log('Client connected:', socket.id);
+  socket.on('join', (room) => { socket.join(room); });
+  socket.on('disconnect', () => {});
+});
+app.set('io', io);
+
+// Mount new route modules
+app.use('/api/addresses', require('./routes/addresses'));
+app.use('/api/newsletter', require('./routes/newsletter'));
+app.use('/api/social-login', require('./routes/social'));
+app.use('/api/abandoned-carts', require('./routes/abandoned_carts'));
+app.use('/api/page-meta', require('./routes/page_meta'));
+app.use('/api/bulk-pricing', require('./routes/bulk_pricing'));
+app.use('/api/recently-viewed', require('./routes/recently_viewed'));
+app.use('/api/push-subscriptions', require('./routes/push_subscriptions'));
+
 // Auto-log helper available to all routes
 app.use((req, res, next) => { req.logActivity = async (userId, userName, action, details) => { try { const { v4: uuidv4 } = require('uuid'); const init = require('./db'); const db = await init(); db.prepare('INSERT INTO activity_logs (id, userId, userName, action, details) VALUES (?, ?, ?, ?, ?)').run(uuidv4(), userId || null, userName || '', action || '', details || ''); } catch(e){} }; next(); });
 
@@ -39,7 +61,7 @@ if (process.env.NODE_ENV === 'production') {
 const dbPath = path.join(__dirname, '..', 'data', 'horizon.db');
 
 function startServer() {
-  app.listen(PORT, () => {
+  server.listen(PORT, () => {
     console.log(`Horizon running on http://localhost:${PORT}`);
   });
 }

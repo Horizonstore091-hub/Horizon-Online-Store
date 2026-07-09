@@ -30,6 +30,7 @@ router.post('/register', async (req, res) => {
     const referralCode = 'HZN' + id.slice(0, 6).toUpperCase();
     db.prepare('INSERT INTO users (id, name, email, password, phone, referralCode) VALUES (?, ?, ?, ?, ?, ?)').run(id, name, email, hash(password), phone || null, referralCode);
     const user = db.prepare('SELECT id, name, email, phone, avatar, role, addresses, walletBalance, loyaltyPoints, referralCode, createdAt FROM users WHERE id = ?').get(id);
+    db.prepare('INSERT INTO activity_logs (id, userId, userName, action, details) VALUES (?, ?, ?, ?, ?)').run(uuidv4(), user.id, name, 'user_registered', 'New account created');
     res.status(201).json({ user, token: id });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
@@ -44,6 +45,7 @@ router.post('/login', async (req, res) => {
     if (user.isSuspended) return res.status(403).json({ error: 'Account suspended. Contact support.' });
     db.prepare('UPDATE users SET lastLogin = datetime(\'now\') WHERE id = ?').run(user.id);
     const { password: _, ...safe } = user;
+    db.prepare('INSERT INTO activity_logs (id, userId, userName, action, details) VALUES (?, ?, ?, ?, ?)').run(uuidv4(), user.id, user.name, 'user_login', 'User logged in');
     res.json({ user: safe, token: user.id });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
@@ -106,6 +108,7 @@ router.put('/:id/wallet', async (req, res) => {
     const { paymentMethod } = req.body;
     db.prepare('INSERT INTO deposits (id, userId, amount, paymentMethod, status) VALUES (?, ?, ?, ?, ?)').run(depositId, req.params.id, parseFloat(amount), paymentMethod || 'card', 'pending');
     db.prepare('INSERT INTO notifications (id, userId, title, message) VALUES (?, ?, ?, ?)').run(uuidv4(), req.params.id, 'Deposit Pending', `Your deposit of $${amount} is pending admin approval.`);
+    db.prepare('INSERT INTO activity_logs (id, userId, userName, action, details) VALUES (?, ?, ?, ?, ?)').run(uuidv4(), req.params.id, '', 'deposit_requested', `Deposit of $${amount} via ${paymentMethod}`);
     res.json({ message: 'Deposit submitted for approval', depositId });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });

@@ -32,6 +32,9 @@ export default function AdminSidebar({ badges = {} }) {
     { to: '/admin/activity', label: 'Activity Log' },
     { to: '/admin/wallet-addresses', label: 'Wallet Addresses' },
     { to: '/admin/giftcards', label: 'Gift Cards' },
+    { to: '/admin/abandoned-carts', label: 'Abandoned Carts' },
+    { to: '/admin/newsletter', label: 'Newsletter' },
+    { to: '/admin/seo', label: 'SEO Metadata' },
   ]
 
   return (

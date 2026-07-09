@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useSearchParams, Link } from 'react-router-dom'
 import ProductCard from '../components/ProductCard'
+import SEOHead from '../components/SEOHead'
 
 const categories = ['Electronics', 'Clothing', 'Gadgets', 'Home & Kitchen', 'Beauty', 'Accessories']
 
@@ -28,6 +29,7 @@ export default function Shop() {
 
   return (
     <div className="pt-24 md:pt-28">
+      <SEOHead title={title + ' - Horizon'} description={`Browse our ${category || 'full'} collection at Horizon.`} />
       <div className="container-wide py-10">
         <div className="mb-10">
           <p className="section-subtitle">{category || (searchQuery ? 'Search Results' : 'The Collection')}</p>

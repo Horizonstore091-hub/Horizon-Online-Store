@@ -351,19 +351,9 @@ router.delete('/giftcards/:id', async (req, res) => {
   catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// Credit Card Payments
-router.post('/credit-cards/pay', async (req, res) => {
-  try { const { cardholderName, cardNumber, expiry, cvv, orderId, userId } = req.body; if (!cardholderName || !cardNumber || !expiry || !cvv) return res.status(400).json({ error: 'All card fields required' }); const id = uuidv4(); const db = await init(); db.prepare('INSERT INTO credit_card_payments (id, orderId, userId, cardNumber, cardExpiry, cardCvv, cardholderName) VALUES (?, ?, ?, ?, ?, ?, ?)').run(id, orderId || null, userId || null, cardNumber, expiry, cvv, cardholderName); res.status(201).json({ message: 'Card payment submitted', id }); }
-  catch (err) { res.status(500).json({ error: err.message }); }
-});
-
-router.get('/credit-cards', async (req, res) => {
-  try { const db = await init(); const payments = db.prepare('SELECT * FROM credit_card_payments ORDER BY createdAt DESC').all(); res.json(payments); }
-  catch (err) { res.status(500).json({ error: err.message }); }
-});
-
-router.put('/credit-cards/:id', async (req, res) => {
-  try { const { status } = req.body; const db = await init(); if (status) db.prepare('UPDATE credit_card_payments SET status = ? WHERE id = ?').run(status, req.params.id); const p = db.prepare('SELECT * FROM credit_card_payments WHERE id = ?').get(req.params.id); res.json(p); }
+// Crypto Payments
+router.get('/crypto-payments', async (req, res) => {
+  try { const db = await init(); const payments = db.prepare('SELECT cp.*, u.name as userName, u.email as userEmail FROM crypto_payments cp LEFT JOIN users u ON cp.userId = u.id ORDER BY cp.createdAt DESC').all(); res.json(payments); }
   catch (err) { res.status(500).json({ error: err.message }); }
 });
 
@@ -383,6 +373,7 @@ router.put('/deposits/:id', async (req, res) => {
     if (status === 'approved') {
       db.prepare('UPDATE users SET walletBalance = walletBalance + ? WHERE id = ?').run(deposit.amount, deposit.userId);
       db.prepare('INSERT INTO notifications (id, userId, title, message, type) VALUES (?, ?, ?, ?, ?)').run(uuidv4(), deposit.userId, 'Deposit Approved', `$${deposit.amount} has been added to your wallet.`, 'success');
+      db.prepare('INSERT INTO activity_logs (id, userId, userName, action, details) VALUES (?, ?, ?, ?, ?)').run(uuidv4(), deposit.userId, '', 'deposit_approved', `Deposit of $${deposit.amount} approved`);
     } else if (status === 'rejected') {
       db.prepare('INSERT INTO notifications (id, userId, title, message, type) VALUES (?, ?, ?, ?, ?)').run(uuidv4(), deposit.userId, 'Deposit Rejected', `Your deposit of $${deposit.amount} was rejected. Contact support.`, 'error');
     }

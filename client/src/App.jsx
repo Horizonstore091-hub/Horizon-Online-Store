@@ -28,7 +28,6 @@ import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
 import CryptoPayment from './pages/CryptoPayment'
 import GiftCardPayment from './pages/GiftCardPayment'
-import CreditCardPayment from './pages/CreditCardPayment'
 import OrderTracking from './pages/OrderTracking'
 
 import ConfirmDeposit from './pages/ConfirmDeposit'
@@ -50,6 +49,10 @@ import AdminBrands from './pages/AdminBrands'
 import AdminCategories from './pages/AdminCategories'
 import AdminActivity from './pages/AdminActivity'
 import AdminWalletAddresses from './pages/AdminWalletAddresses'
+import AddressBook from './pages/AddressBook'
+import AdminAbandonedCarts from './pages/AdminAbandonedCarts'
+import AdminNewsletter from './pages/AdminNewsletter'
+import AdminSEO from './pages/AdminSEO'
 
 function ScrollToTop() {
   const { pathname } = useLocation()
@@ -82,6 +85,9 @@ export default function App() {
             <Route path="/categories" element={<AdminCategories />} />
             <Route path="/activity" element={<AdminActivity />} />
             <Route path="/wallet-addresses" element={<AdminWalletAddresses />} />
+            <Route path="/abandoned-carts" element={<AdminAbandonedCarts />} />
+            <Route path="/newsletter" element={<AdminNewsletter />} />
+            <Route path="/seo" element={<AdminSEO />} />
           </Routes>
         } />
         <Route path="/promo-ads" element={<PromoAds />} />
@@ -117,9 +123,10 @@ export default function App() {
                 <Route path="/track-order" element={<OrderTracking />} />
                 <Route path="/crypto-payment/:orderId" element={<CryptoPayment />} />
                 <Route path="/gift-card-payment/:orderId" element={<GiftCardPayment />} />
-                <Route path="/credit-card-payment/:orderId" element={<CreditCardPayment />} />
+
 
                 <Route path="/confirm-deposit/:orderId" element={<ConfirmDeposit />} />
+                <Route path="/addresses" element={<AddressBook />} />
               </Routes>
             </main>
             <Footer />

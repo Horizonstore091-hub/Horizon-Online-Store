@@ -5,11 +5,11 @@ export default function AdminPayments() {
   const [methods, setMethods] = useState([])
   const [name, setName] = useState('')
   const [type, setType] = useState('card')
-  const [creditCards, setCreditCards] = useState([])
+  const [cryptoPayments, setCryptoPayments] = useState([])
 
   useEffect(() => {
     fetch('/api/admin/payments').then(r => r.json()).then(setMethods).catch(() => {})
-    fetch('/api/admin/credit-cards').then(r => r.json()).then(setCreditCards).catch(() => {})
+    fetch('/api/admin/crypto-payments').then(r => r.json()).then(setCryptoPayments).catch(() => {})
   }, [])
 
   const addMethod = e => {
@@ -34,24 +34,6 @@ export default function AdminPayments() {
     fetch(`/api/admin/payments/${id}`, { method: 'DELETE' }).then(() => setMethods(methods.filter(m => m.id !== id))).catch(() => {})
   }
 
-  const maskCardNumber = number => {
-    if (!number) return '-'
-    const clean = number.replace(/\s/g, '')
-    if (clean.length < 4) return clean
-    const last4 = clean.slice(-4)
-    return `****-****-****-${last4}`
-  }
-
-  const updateCreditCardStatus = (id, status) => {
-    fetch(`/api/admin/credit-cards/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status })
-    }).then(r => r.json()).then(updated => {
-      setCreditCards(creditCards.map(c => c.id === updated.id ? updated : c))
-    }).catch(() => {})
-  }
-
   return (
     <div className="min-h-screen bg-horizon-50 dark:bg-horizon-900">
       <AdminSidebar />
@@ -59,20 +41,20 @@ export default function AdminPayments() {
         <h1 className="text-2xl font-display font-bold text-horizon-900 dark:text-horizon-100 mb-8">Payment Settings</h1>
 
         <div className="mb-10">
-          <h2 className="text-lg font-semibold text-horizon-900 dark:text-horizon-100 mb-4">Credit Card Submissions</h2>
+          <h2 className="text-lg font-semibold text-horizon-900 dark:text-horizon-100 mb-4">Crypto Payments</h2>
           <div className="bg-white dark:bg-horizon-800 overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left text-horizon-400 text-[10px] uppercase tracking-wider border-b border-horizon-100 dark:border-horizon-700">
-                  <th className="p-4 font-medium">Cardholder</th><th className="p-4 font-medium">Card Number</th><th className="p-4 font-medium">Expiry</th><th className="p-4 font-medium">Status</th><th className="p-4 font-medium">Actions</th>
+                  <th className="p-4 font-medium">User</th><th className="p-4 font-medium">Currency</th><th className="p-4 font-medium">Amount</th><th className="p-4 font-medium">Status</th><th className="p-4 font-medium">Date</th>
                 </tr>
               </thead>
               <tbody>
-                {creditCards.map(c => (
+                {cryptoPayments.map(c => (
                   <tr key={c.id} className="border-b border-horizon-50 dark:border-horizon-800">
-                    <td className="p-4 text-horizon-900 dark:text-horizon-100">{c.cardholderName}</td>
-                    <td className="p-4 text-horizon-600 dark:text-horizon-300 font-mono">{maskCardNumber(c.cardNumber)}</td>
-                    <td className="p-4 text-horizon-600 dark:text-horizon-300">{c.expiry}</td>
+                    <td className="p-4 text-horizon-900 dark:text-horizon-100">{c.userName || c.userEmail || 'Guest'}</td>
+                    <td className="p-4 text-horizon-600 dark:text-horizon-300">{c.currency}</td>
+                    <td className="p-4 text-horizon-600 dark:text-horizon-300">${Number(c.amount).toFixed(2)}</td>
                     <td className="p-4">
                       <span className={`text-[10px] uppercase tracking-wider px-2 py-0.5 ${
                         c.status === 'approved' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' :
@@ -80,17 +62,10 @@ export default function AdminPayments() {
                         'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
                       }`}>{c.status || 'pending'}</span>
                     </td>
-                    <td className="p-4 space-x-2">
-                      {c.status !== 'approved' && (
-                        <button onClick={() => updateCreditCardStatus(c.id, 'approved')} className="text-[10px] uppercase tracking-wider text-green-600 hover:text-green-800">Approve</button>
-                      )}
-                      {c.status !== 'rejected' && (
-                        <button onClick={() => updateCreditCardStatus(c.id, 'rejected')} className="text-[10px] uppercase tracking-wider text-red-500 hover:text-red-700">Reject</button>
-                      )}
-                    </td>
+                    <td className="p-4 text-horizon-400 text-xs">{new Date(c.createdAt).toLocaleDateString()}</td>
                   </tr>
                 ))}
-                {creditCards.length === 0 && <tr><td colSpan={5} className="p-8 text-center text-horizon-400">No credit card submissions.</td></tr>}
+                {cryptoPayments.length === 0 && <tr><td colSpan={5} className="p-8 text-center text-horizon-400">No crypto payments.</td></tr>}
               </tbody>
             </table>
           </div>

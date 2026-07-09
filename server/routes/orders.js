@@ -16,6 +16,7 @@ router.post('/', async (req, res) => {
     const order = db.prepare('SELECT * FROM orders WHERE id = ?').get(id);
     const sendEmail = require('../email');
     sendEmail({ to: customerEmail, subject: 'Order Confirmed - Horizon', text: `Your order #${orderNumber} has been confirmed. Total: $${total}. Thank you for shopping at Horizon!` }).catch(()=>{});
+    db.prepare('INSERT INTO activity_logs (id, userId, userName, action, details) VALUES (?, ?, ?, ?, ?)').run(uuidv4(), userId || 'guest', customerName, 'order_placed', `Order #${orderNumber} placed - $${total}`);
     res.status(201).json(order);
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
@@ -35,19 +36,20 @@ router.get('/:id', async (req, res) => {
   catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// Credit card payment from checkout
-router.post('/credit-cards/pay', async (req, res) => {
+// Crypto payment submission
+router.post('/crypto-pay', async (req, res) => {
   try {
-    const { cardholderName, cardNumber, expiry, cvv, orderId, userId } = req.body;
-    if (!cardholderName || !cardNumber || !expiry || !cvv) return res.status(400).json({ error: 'All card fields required' });
+    const { orderId, userId, currency, amount, walletAddress, txHash } = req.body;
+    if (!currency || !amount) return res.status(400).json({ error: 'Currency and amount required' });
     const { v4: uuidv4 } = require('uuid');
     const init = require('../db');
     const db = await init();
     const id = uuidv4();
-    db.prepare('INSERT INTO credit_card_payments (id, orderId, userId, cardNumber, cardExpiry, cardCvv, cardholderName) VALUES (?, ?, ?, ?, ?, ?, ?)').run(id, orderId || null, userId || null, cardNumber, expiry, cvv, cardholderName);
+    db.prepare('INSERT INTO crypto_payments (id, orderId, userId, currency, amount, walletAddress, txHash) VALUES (?, ?, ?, ?, ?, ?, ?)').run(id, orderId || null, userId || null, currency, amount, walletAddress || null, txHash || null);
+    db.prepare('UPDATE orders SET paymentStatus = ?, status = ? WHERE id = ?').run('paid', 'pending', orderId);
     // Log activity
-    db.prepare('INSERT INTO activity_logs (id, userId, userName, action, details) VALUES (?, ?, ?, ?, ?)').run(uuidv4(), userId || 'guest', cardholderName, 'credit_card_submission', 'Credit card payment submitted for order ' + (orderId || ''));
-    res.status(201).json({ message: 'Card payment submitted', id });
+    db.prepare('INSERT INTO activity_logs (id, userId, userName, action, details) VALUES (?, ?, ?, ?, ?)').run(uuidv4(), userId || 'guest', '', 'crypto_payment', `Crypto payment of $${amount} via ${currency}`);
+    res.status(201).json({ message: 'Crypto payment recorded', id });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 

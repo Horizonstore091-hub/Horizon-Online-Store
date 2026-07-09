@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import ProductCard from '../components/ProductCard'
+import RecentlyViewed from '../components/RecentlyViewed'
+import SEOHead from '../components/SEOHead'
 
 function RevealOnScroll({ children, className = '' }) {
   const ref = useRef(null)
@@ -97,7 +99,7 @@ export default function Home() {
     return () => { clearInterval(interval); clearInterval(timer) }
   }, [])
 
-  const handleSubscribe = e => { e.preventDefault(); setSubscribed(true); setTimeout(() => setSubscribed(false), 4000) }
+  const handleSubscribe = async e => { e.preventDefault(); const email = e.target.querySelector('input[type=email]').value; try { await fetch('/api/newsletter/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, source: 'homepage' }) }) } catch {}; setSubscribed(true); setTimeout(() => setSubscribed(false), 4000) }
 
   return (
     <div>
@@ -255,6 +257,8 @@ export default function Home() {
         </section>
       </RevealOnScroll>
 
+      <SEOHead title="Horizon - Premium Online Store" description="Discover premium products at Horizon. Shop the latest in fashion, tech, and lifestyle." />
+      <RecentlyViewed />
       {subscribed && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={() => setSubscribed(false)}>
           <div className="glass-card p-8 max-w-sm mx-4 text-center animate-scale-in" onClick={e => e.stopPropagation()}>

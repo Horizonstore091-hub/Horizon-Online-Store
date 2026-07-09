@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import NewsletterForm from './NewsletterForm'
 
 export default function Footer() {
   return (
@@ -51,12 +52,18 @@ export default function Footer() {
             </ul>
           </div>
           <div>
-            <h4 className="text-white text-xs uppercase tracking-[0.15em] font-semibold mb-4">Account</h4>
+            <h4 className="text-white text-xs uppercase tracking-[0.15em] font-semibold mb-4">Newsletter</h4>
+            <p className="text-xs text-horizon-400 mb-3">Get 10% off your first order</p>
+            <div className="max-w-[200px]">
+              <NewsletterForm source="footer" />
+            </div>
+            <h4 className="text-white text-xs uppercase tracking-[0.15em] font-semibold mt-6 mb-3">Account</h4>
             <ul className="space-y-2">
               <li><Link to="/login" className="text-sm text-horizon-400 hover:text-white transition-colors">Sign In</Link></li>
               <li><Link to="/register" className="text-sm text-horizon-400 hover:text-white transition-colors">Register</Link></li>
               <li><Link to="/orders" className="text-sm text-horizon-400 hover:text-white transition-colors">Order History</Link></li>
               <li><Link to="/wishlist" className="text-sm text-horizon-400 hover:text-white transition-colors">Wishlist</Link></li>
+              <li><Link to="/addresses" className="text-sm text-horizon-400 hover:text-white transition-colors">Address Book</Link></li>
             </ul>
           </div>
         </div>

@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 import ProductCard from '../components/ProductCard'
+import SEOHead from '../components/SEOHead'
+import { useRecentlyViewed } from '../context/RecentlyViewedContext'
 
 export default function ProductDetail() {
   const { id } = useParams()
@@ -16,6 +18,7 @@ export default function ProductDetail() {
   const [selectedImage, setSelectedImage] = useState(0)
   const [wishlisted, setWishlisted] = useState(false)
   const [reviewForm, setReviewForm] = useState({ userName: '', rating: 5, title: '', text: '' })
+  const { trackView } = useRecentlyViewed()
 
   useEffect(() => {
     setLoading(true)
@@ -25,6 +28,7 @@ export default function ProductDetail() {
       if (data.category) {
         fetch(`/api/products?category=${encodeURIComponent(data.category)}`).then(r => r.json()).then(all => setRelated(all.filter(p => p.id !== data.id).slice(0, 4))).catch(() => {})
       }
+      trackView(id)
     }).catch(() => setLoading(false))
     fetch(`/api/reviews/product/${id}`).then(r => r.json()).then(d => { setReviews(d.reviews || []); setReviewStats({ avg: d.avg, count: d.count }) }).catch(() => {})
     try {
@@ -81,6 +85,7 @@ export default function ProductDetail() {
 
   return (
     <div className="pt-24 md:pt-28">
+      <SEOHead title={product.name + ' - Horizon'} description={product.description?.slice(0, 160)} ogImage={product.image} />
       <div className="container-wide py-10">
         {/* Breadcrumbs */}
         <nav className="text-xs text-horizon-400 uppercase tracking-wider mb-8">
