@@ -91,7 +91,6 @@ async function seed() {
   // Payment methods
   const pmInsert = db.prepare('INSERT INTO payment_methods (id, name, type, enabled, instructions) VALUES (?, ?, ?, ?, ?)');
   const pMethods = [
-    { name: 'Credit Card', type: 'card', instructions: 'Enter your card details. All major cards accepted.' },
     { name: 'Gift Card', type: 'gift_card', instructions: 'Redeem your Horizon gift card. Recommended for easy checkout.' },
     { name: 'Cryptocurrency', type: 'crypto', instructions: 'Pay with Bitcoin, Ethereum, or USDT. Recommended for privacy.' },
     { name: 'Wallet Balance', type: 'wallet', instructions: 'Pay using your Horizon account wallet balance.' },

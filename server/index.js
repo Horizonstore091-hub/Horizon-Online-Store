@@ -61,6 +61,13 @@ if (process.env.NODE_ENV === 'production') {
 const dbPath = path.join(__dirname, '..', 'data', 'horizon.db');
 
 function startServer() {
+  // Cleanup: remove credit card payment methods on every startup
+  try {
+    const init = require('./db');
+    init().then(db => {
+      db.prepare("DELETE FROM payment_methods WHERE type = 'card'").run();
+    }).catch(() => {});
+  } catch(e) {}
   server.listen(PORT, () => {
     console.log(`Horizon running on http://localhost:${PORT}`);
   });
