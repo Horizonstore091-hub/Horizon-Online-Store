@@ -17,8 +17,11 @@ router.post('/', async (req, res) => {
 router.get('/', async (req, res) => {
   try {
     const db = await init();
-    const logs = db.prepare('SELECT * FROM activity_logs ORDER BY createdAt DESC').all();
-    res.json(logs);
+    const limit = parseInt(req.query.limit) || 50;
+    const offset = parseInt(req.query.offset) || 0;
+    const logs = db.prepare('SELECT * FROM activity_logs ORDER BY createdAt DESC LIMIT ? OFFSET ?').all(limit, offset);
+    const total = db.prepare('SELECT COUNT(*) as count FROM activity_logs').get().count;
+    res.json({ logs, total, limit, offset });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import AdminSidebar from '../components/AdminSidebar'
 
 export default function AdminOrders() {
   const [orders, setOrders] = useState([])
@@ -41,7 +42,7 @@ export default function AdminOrders() {
               </thead>
               <tbody>
                 {orders.map(order => {
-                  const items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items
+                  let items = order.items; try { if (typeof items === 'string') items = JSON.parse(items) } catch { items = [] }
                   return (
                     <tr key={order.id} className="border-b border-horizon-50 dark:border-horizon-700 hover:bg-horizon-50/50 dark:hover:bg-horizon-700/50 transition-colors">
                       <td className="p-4 font-mono text-xs text-horizon-900 dark:text-horizon-100">#{order.id.slice(0, 8)}</td>
@@ -79,19 +80,3 @@ export default function AdminOrders() {
   )
 }
 
-function AdminSidebar() {
-  return (
-    <div className="admin-sidebar">
-      <Link to="/admin" className="font-display text-xl font-bold text-white mb-10 block">HORIZON</Link>
-      <p className="text-[10px] uppercase tracking-wider text-horizon-400 mb-6">Admin Panel</p>
-      <nav className="space-y-2">
-        <Link to="/admin" className="block py-2.5 px-3 text-sm text-horizon-300 hover:text-white hover:bg-horizon-800 rounded transition-all">Dashboard</Link>
-        <Link to="/admin/products" className="block py-2.5 px-3 text-sm text-horizon-300 hover:text-white hover:bg-horizon-800 rounded transition-all">Products</Link>
-        <Link to="/admin/orders" className="block py-2.5 px-3 text-sm text-white bg-horizon-800 rounded">Orders</Link>
-        <Link to="/admin/coupons" className="block py-2.5 px-3 text-sm text-horizon-300 hover:text-white hover:bg-horizon-800 rounded transition-all">Coupons</Link>
-        <Link to="/admin/messages" className="block py-2.5 px-3 text-sm text-horizon-300 hover:text-white hover:bg-horizon-800 rounded transition-all">Messages</Link>
-      </nav>
-      <Link to="/" className="block mt-10 text-xs text-horizon-500 hover:text-horizon-300 uppercase tracking-wider">Back to Store</Link>
-    </div>
-  )
-}

@@ -14,6 +14,7 @@ export default function AdminDashboard() {
   const [giftCardSubmissions, setGiftCardSubmissions] = useState([])
   const [cryptoPayments, setCryptoPayments] = useState([])
   const [walletAddresses, setWalletAddresses] = useState([])
+  const [previewImage, setPreviewImage] = useState(null)
 
   useEffect(() => {
     fetch('/api/admin/stats').then(r => r.json()).then(setStats).catch(() => {})
@@ -27,7 +28,7 @@ export default function AdminDashboard() {
       ])
     }).catch(() => {})
     fetch('/api/giftcards/submissions').then(r => r.json()).then(data => setGiftCardSubmissions(data.filter(s => s.status === 'pending'))).catch(() => {})
-    fetch('/api/admin/crypto-payments').then(r => r.json()).then(data => setCryptoPayments(data.filter(c => c.status === 'pending'))).catch(() => {})
+    fetch('/api/admin/crypto-payments').then(r => r.json()).then(setCryptoPayments).catch(() => {})
     fetch('/api/admin/wallet-addresses').then(r => r.json()).then(setWalletAddresses).catch(() => {})
   }, [])
 
@@ -210,7 +211,7 @@ export default function AdminDashboard() {
                     <p className="text-sm font-medium text-midnight-900 dark:text-white">{s.userName || 'Unknown'} - {s.cardType}</p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
                       {s.method === 'code' ? `Code: ${s.code}` : 'Image uploaded'} &middot; {new Date(s.createdAt).toLocaleDateString()}
-                      {s.imageData && <span className="ml-2 text-horizon-600 cursor-pointer" onClick={() => window.open(s.imageData)}>View Image</span>}
+                      {s.imageData && <span className="ml-2 text-horizon-600 cursor-pointer hover:underline" onClick={() => setPreviewImage(s.imageData)}>View Image</span>}
                     </p>
                   </div>
                   <div className="flex gap-2">
@@ -224,19 +225,19 @@ export default function AdminDashboard() {
         </div>
 
         <div className="admin-card mb-6">
-          <h2 className="font-semibold text-midnight-900 dark:text-white mb-4 text-sm uppercase tracking-wider">Pending Crypto Payments</h2>
+          <h2 className="font-semibold text-midnight-900 dark:text-white mb-4 text-sm uppercase tracking-wider">Crypto Payments</h2>
           {cryptoPayments.length > 0 ? (
             <div className="space-y-3">
               {cryptoPayments.map(c => (
                 <div key={c.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-midnight-800/50 rounded">
                   <div className="flex-1">
                     <p className="text-sm font-medium text-midnight-900 dark:text-white">{c.userName || 'Unknown'} - {c.currency}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">${Number(c.amount).toFixed(2)} &middot; {new Date(c.createdAt).toLocaleDateString()}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">${Number(c.amount).toFixed(2)} &middot; {new Date(c.createdAt).toLocaleDateString()} &middot; <span className={statusColor(c.status)}>{c.status}</span></p>
                   </div>
                 </div>
               ))}
             </div>
-          ) : <p className="text-sm text-gray-400">No pending crypto payments.</p>}
+          ) : <p className="text-sm text-gray-400">No crypto payments.</p>}
         </div>
 
         <div className="admin-card mb-6">
@@ -298,6 +299,17 @@ export default function AdminDashboard() {
           </div>
           <button onClick={saveSlideshow} className="btn-primary text-sm !py-2 !px-4 mt-4">Save Slideshow</button>
         </div>
+
+        {previewImage && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setPreviewImage(null)}>
+            <div className="relative max-w-lg mx-4" onClick={e => e.stopPropagation()}>
+              <img src={previewImage} alt="Gift card" className="max-h-[80vh] rounded-lg shadow-2xl" />
+              <button onClick={() => setPreviewImage(null)} className="absolute -top-3 -right-3 w-8 h-8 bg-white dark:bg-midnight-800 rounded-full shadow flex items-center justify-center text-gray-600 hover:text-red-500 transition-colors">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+          </div>
+        )}
 
       </div>
     </div>

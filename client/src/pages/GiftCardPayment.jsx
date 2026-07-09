@@ -12,6 +12,7 @@ export default function GiftCardPayment() {
   const { orderId } = useParams()
   const navigate = useNavigate()
   const [cardType, setCardType] = useState('iTunes')
+  const [cardTypeOther, setCardTypeOther] = useState('')
   const [code, setCode] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -66,7 +67,7 @@ export default function GiftCardPayment() {
         body: JSON.stringify({
           userId,
           orderId: orderId || null,
-          cardType,
+          cardType: cardType === 'Other' ? cardTypeOther : cardType,
           code: uploadMethod === 'code' ? code.trim() : null,
           imageData: uploadMethod === 'image' ? giftCardImage : null,
           method: uploadMethod,
@@ -115,6 +116,12 @@ export default function GiftCardPayment() {
                 <option key={ct.value} value={ct.value}>{ct.label}</option>
               ))}
             </select>
+              {cardType === 'Other' && (
+                <div className="mt-2">
+                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Specify Card Type</label>
+                  <input value={cardTypeOther} onChange={e => setCardTypeOther(e.target.value)} placeholder="Enter your gift card type" className="input-field w-full" required />
+                </div>
+              )}
           </div>
 
           <div className="flex gap-2 mb-2">

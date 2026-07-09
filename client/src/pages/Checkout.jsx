@@ -15,7 +15,7 @@ export default function Checkout() {
   const [placing, setPlacing] = useState(false)
   const [done, setDone] = useState(false)
   const [orderId, setOrderId] = useState('')
-  const [paymentMethod, setPaymentMethod] = useState('card')
+  const [paymentMethod, setPaymentMethod] = useState('crypto')
   const [paymentMethods, setPaymentMethods] = useState([])
   const [orderCreated, setOrderCreated] = useState(null)
   const [walletBalance, setWalletBalance] = useState(null)

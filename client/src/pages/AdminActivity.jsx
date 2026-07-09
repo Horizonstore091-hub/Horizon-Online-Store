@@ -4,10 +4,21 @@ import AdminSidebar from '../components/AdminSidebar'
 export default function AdminActivity() {
   const [logs, setLogs] = useState([])
   const [loading, setLoading] = useState(true)
+  const [page, setPage] = useState(0)
+  const [hasMore, setHasMore] = useState(true)
+  const LIMIT = 50
 
   useEffect(() => {
-    fetch('/api/activity').then(r => r.json()).then(data => { setLogs(data); setLoading(false) }).catch(() => setLoading(false))
-  }, [])
+    setLoading(true)
+    fetch(`/api/activity?limit=${LIMIT}&offset=${page * LIMIT}`).then(r => r.json()).then(data => {
+      const list = Array.isArray(data) ? data : data.logs || []
+      setLogs(prev => page === 0 ? list : [...prev, ...list])
+      setHasMore(list.length >= LIMIT)
+      setLoading(false)
+    }).catch(() => setLoading(false))
+  }, [page])
+
+  const loadMore = () => setPage(p => p + 1)
 
   return (
     <div className="flex min-h-screen bg-gray-50 dark:bg-midnight-950">
@@ -34,6 +45,11 @@ export default function AdminActivity() {
                 {logs.length === 0 && <tr><td colSpan={4} className="p-8 text-center text-gray-400">No activity logs yet.</td></tr>}
               </tbody>
             </table>
+              {hasMore && (
+                <div className="p-4 text-center">
+                  <button onClick={loadMore} disabled={loading} className="btn-outline text-sm">Load More</button>
+                </div>
+              )}
           </div>
         )}
       </div>

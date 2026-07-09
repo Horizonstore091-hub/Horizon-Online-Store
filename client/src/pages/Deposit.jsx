@@ -4,8 +4,7 @@ import { useAuth } from '../context/AuthContext'
 
 const paymentMethods = [
   { id: 'crypto', label: 'Cryptocurrency', icon: 'M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z', recommended: true },
-  { id: 'gift_card', label: 'Gift Card', icon: 'M21 11.25v8.25a1.5 1.5 0 01-1.5 1.5H5.25a1.5 1.5 0 01-1.5-1.5v-8.25M12 4.875A2.625 2.625 0 109.375 7.5H12m0-2.625V2.25m0 2.625h2.625A2.625 2.625 0 1112 4.875z', recommended: true },
-  { id: 'credit_card', label: 'Credit Card', icon: 'M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z' },
+  { id: 'gift_card', label: 'Gift Card', icon: 'M19 11.25v8.25a1.5 1.5 0 01-1.5 1.5H5.25a1.5 1.5 0 01-1.5-1.5v-8.25M12 4.875A2.625 2.625 0 109.375 7.5H12m0-2.625V2.25m0 2.625h2.625A2.625 2.625 0 1112 4.875z', recommended: true },
 ]
 
 export default function Deposit() {
@@ -13,7 +12,7 @@ export default function Deposit() {
   const navigate = useNavigate()
   const [profile, setProfile] = useState(null)
   const [amount, setAmount] = useState('')
-  const [selectedMethod, setSelectedMethod] = useState('credit_card')
+  const [selectedMethod, setSelectedMethod] = useState('crypto')
   const [loading, setLoading] = useState(false)
   const [confirmed, setConfirmed] = useState(false)
   const [error, setError] = useState('')
@@ -43,7 +42,6 @@ export default function Deposit() {
       else if (data.depositId) {
         if (selectedMethod === 'crypto') navigate(`/crypto-payment/${data.depositId}`)
         else if (selectedMethod === 'gift_card') navigate(`/gift-card-payment/${data.depositId}`)
-        else if (selectedMethod === 'credit_card') navigate(`/credit-card-payment/${data.depositId}`)
         else setConfirmed(true)
       } else setConfirmed(true)
     } catch {

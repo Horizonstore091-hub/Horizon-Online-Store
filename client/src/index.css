@@ -226,3 +226,29 @@
 .dark .dot-pattern {
   background-image: radial-gradient(circle, #2a2d44 1px, transparent 1px);
 }
+
+/* Enhanced admin UI */
+.admin-card {
+  @apply bg-white dark:bg-midnight-900 rounded-xl border border-gray-100 dark:border-midnight-800 p-6 transition-all duration-200;
+}
+.admin-card:hover {
+  @apply shadow-lg border-gray-200 dark:border-midnight-700;
+}
+.admin-sidebar {
+  @apply w-64 bg-midnight-900 p-6 flex flex-col shrink-0 min-h-screen;
+}
+.admin-content {
+  @apply flex-1 p-8 overflow-auto;
+}
+.table-admin {
+  @apply w-full text-sm;
+}
+.table-admin th {
+  @apply text-left text-gray-400 text-xs uppercase tracking-wider font-medium p-4 border-b border-gray-100 dark:border-midnight-800 bg-gray-50 dark:bg-midnight-800/50;
+}
+.table-admin td {
+  @apply p-4 border-b border-gray-50 dark:border-midnight-800/50;
+}
+.table-admin tr:hover td {
+  @apply bg-gray-50 dark:bg-midnight-800/30;
+}
