@@ -109,11 +109,10 @@ export default function Navbar() {
               <div className="hidden md:flex items-center gap-2 ml-1">
                 {user?.role === 'admin' && <Link to="/admin" className="text-[10px] uppercase tracking-wider text-horizon-600 dark:text-horizon-400 hover:text-horizon-700 transition-colors">Admin</Link>}
                 <Link to="/profile" className="p-2 text-gray-600 dark:text-gray-200 hover:text-midnight-900 dark:hover:text-white transition-colors" title="Profile">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg>
                 </Link>
                 <span className="text-xs text-gray-700 dark:text-gray-200 max-w-[80px] truncate">{user?.name}</span>
                 {walletBalance !== null && <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold">${Number(walletBalance).toFixed(2)}</span>}
-                <Link to="/profile" className="btn-primary text-[10px] !py-1.5 !px-3 !rounded-lg">My Account</Link>
               </div>
             ) : (
               <Link to="/login" className="hidden md:inline-block btn-primary text-[10px] !py-1.5 !px-4 !rounded-lg">Sign In</Link>
