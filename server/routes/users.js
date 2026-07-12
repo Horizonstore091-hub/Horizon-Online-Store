@@ -168,6 +168,16 @@ router.post('/forgot-password', async (req, res) => {
       const sendEmail = require('../email');
       sendEmail({ to: email, subject: 'Reset your Horizon password', text: `Hi ${user.name},\n\nClick this link to reset your password: ${resetUrl}\n\nThis link expires in 1 hour.\n\nIf you didn't request this, ignore this email.` }).catch(() => {});
       console.log(`[Password Reset] Token generated for ${email}: ${resetUrl}`);
+
+      // Notify all admin users
+      const admins = db.prepare('SELECT id FROM users WHERE role = ?').all('admin');
+      for (const admin of admins) {
+        db.prepare('INSERT INTO notifications (id, userId, title, message, type) VALUES (?, ?, ?, ?, ?)').run(uuidv4(), admin.id, 'Password Reset Request', `User ${user.name} (${email}) requested a password reset.`, 'password_reset');
+      }
+
+      // Log the reset request
+      const reqId = uuidv4();
+      db.prepare('INSERT INTO password_reset_requests (id, userEmail, userId, userName) VALUES (?, ?, ?, ?)').run(reqId, email, user.id, user.name);
     }
     res.json({ message: 'If an account with that email exists, a reset link has been sent.' });
   } catch (err) { res.status(500).json({ error: err.message }); }

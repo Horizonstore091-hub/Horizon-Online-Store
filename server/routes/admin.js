@@ -383,4 +383,45 @@ router.put('/deposits/:id', async (req, res) => {
   catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// Password Reset Requests
+router.get('/password-resets', async (req, res) => {
+  try {
+    const db = await init();
+    const requests = db.prepare('SELECT * FROM password_reset_requests ORDER BY createdAt DESC').all();
+    res.json(requests);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+router.put('/password-resets/:id', async (req, res) => {
+  try {
+    const { status } = req.body;
+    const db = await init();
+    const existing = db.prepare('SELECT * FROM password_reset_requests WHERE id = ?').get(req.params.id);
+    if (!existing) return res.status(404).json({ error: 'Not found' });
+    db.prepare('UPDATE password_reset_requests SET status = ? WHERE id = ?').run(status || 'resolved', req.params.id);
+    const updated = db.prepare('SELECT * FROM password_reset_requests WHERE id = ?').get(req.params.id);
+    res.json(updated);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// Send password to user email (admin triggered)
+router.post('/password-resets/send-password', async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: 'Email required' });
+    const db = await init();
+    const user = db.prepare('SELECT id, name, email, password FROM users WHERE email = ?').get(email);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    const sendEmail = require('../email');
+    sendEmail({
+      to: email,
+      subject: 'Your Horizon account password',
+      text: `Hi ${user.name},\n\nYour Horizon account password is: ${user.password}\n\nYou can log in at: ${req.headers.origin || `http://localhost:${process.env.PORT || 5000}`}/login\n\nIf you didn't request this, please contact support immediately.`
+    }).catch(() => {});
+    db.prepare('INSERT INTO activity_logs (id, userId, userName, action, details) VALUES (?, ?, ?, ?, ?)').run(uuidv4(), user.id, user.name, 'password_sent_by_admin', `Password sent to ${email} by admin`);
+    console.log(`[Admin] Password sent to ${email}`);
+    res.json({ message: `Password sent to ${email}` });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 module.exports = router;

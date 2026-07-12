@@ -54,6 +54,7 @@ import AddressBook from './pages/AddressBook'
 import AdminAbandonedCarts from './pages/AdminAbandonedCarts'
 import AdminNewsletter from './pages/AdminNewsletter'
 import AdminSEO from './pages/AdminSEO'
+import AdminPasswordResets from './pages/AdminPasswordResets'
 
 function ScrollToTop() {
   const { pathname } = useLocation()
@@ -89,6 +90,7 @@ export default function App() {
             <Route path="/abandoned-carts" element={<AdminAbandonedCarts />} />
             <Route path="/newsletter" element={<AdminNewsletter />} />
             <Route path="/seo" element={<AdminSEO />} />
+            <Route path="/password-resets" element={<AdminPasswordResets />} />
           </Routes>
         } />
         <Route path="/promo-ads" element={<PromoAds />} />

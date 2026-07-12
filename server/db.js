@@ -320,6 +320,13 @@ async function init() {
       createdAt TEXT DEFAULT (datetime('now')),
       FOREIGN KEY (userId) REFERENCES users(id)
     );
+
+    CREATE TABLE IF NOT EXISTS password_reset_requests (
+      id TEXT PRIMARY KEY, userEmail TEXT NOT NULL,
+      userId TEXT, userName TEXT,
+      status TEXT DEFAULT 'pending',
+      createdAt TEXT DEFAULT (datetime('now'))
+    );
   `);
   ready = true;
   return db;
