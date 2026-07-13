@@ -55,6 +55,7 @@ import AdminAbandonedCarts from './pages/AdminAbandonedCarts'
 import AdminNewsletter from './pages/AdminNewsletter'
 import AdminSEO from './pages/AdminSEO'
 import AdminPasswordResets from './pages/AdminPasswordResets'
+import AdminEbayImport from './pages/AdminEbayImport'
 
 function ScrollToTop() {
   const { pathname } = useLocation()
@@ -91,6 +92,7 @@ export default function App() {
             <Route path="/newsletter" element={<AdminNewsletter />} />
             <Route path="/seo" element={<AdminSEO />} />
             <Route path="/password-resets" element={<AdminPasswordResets />} />
+            <Route path="/ebay-import" element={<AdminEbayImport />} />
           </Routes>
         } />
         <Route path="/promo-ads" element={<PromoAds />} />

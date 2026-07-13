@@ -424,4 +424,51 @@ router.post('/password-resets/send-password', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// eBay Product Import
+router.get('/ebay/search', async (req, res) => {
+  try {
+    const { q, limit } = req.query;
+    if (!q) return res.status(400).json({ error: 'Search query required' });
+    const ebay = require('../ebay');
+    const results = await ebay.searchProducts(q, { limit: parseInt(limit) || 20 });
+    const mapped = results.map(r => {
+      const images = [];
+      if (r.image?.imageUrl) images.push(r.image.imageUrl);
+      const aspects = {};
+      if (r.aspects) r.aspects.forEach(a => { if (a.localizedName && a.localizedValues) aspects[a.localizedName] = a.localizedValues.join(', '); });
+      const price = r.marketingPrice?.originalPrice?.value || r.price?.value || null;
+      return {
+        epid: r.epid,
+        title: r.title,
+        price: price ? parseFloat(price) : null,
+        image: images[0] || null,
+        aspects,
+        productHref: r.productHref,
+      };
+    });
+    res.json(mapped);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+router.post('/ebay/import', async (req, res) => {
+  try {
+    const { epid } = req.body;
+    if (!epid) return res.status(400).json({ error: 'ePID required' });
+    const ebay = require('../ebay');
+    const product = await ebay.getProduct(epid);
+    const mapped = ebay.mapToProduct(product);
+    const db = await init();
+    const id = uuidv4();
+    const catId = db.prepare('SELECT id FROM categories LIMIT 1').get()?.id;
+    db.prepare(`INSERT INTO products (id, name, description, price, category, categoryId, image, images, features, specifications, stock, sku, published, featured)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,1,0)`).run(id, mapped.name, mapped.description, mapped.price, mapped.category, catId || null, mapped.image, JSON.stringify(mapped.images), mapped.features, mapped.specifications, mapped.stock, mapped.sku);
+    if (mapped.images.length > 0) {
+      const piInsert = db.prepare('INSERT INTO product_images (id, productId, url, sortOrder) VALUES (?,?,?,?)');
+      mapped.images.forEach((url, i) => piInsert.run(uuidv4(), id, url, i));
+    }
+    const created = db.prepare('SELECT * FROM products WHERE id = ?').get(id);
+    res.status(201).json(created);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 module.exports = router;

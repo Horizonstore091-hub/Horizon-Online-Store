@@ -36,6 +36,7 @@ export default function AdminSidebar({ badges = {} }) {
     { to: '/admin/password-resets', label: 'Password Resets' },
     { to: '/admin/newsletter', label: 'Newsletter' },
     { to: '/admin/seo', label: 'SEO Metadata' },
+    { to: '/admin/ebay-import', label: 'eBay Import' },
   ]
 
   return (
