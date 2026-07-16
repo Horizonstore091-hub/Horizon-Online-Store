@@ -55,8 +55,12 @@ async function main() {
   const pInsert = db.prepare(`INSERT INTO products (id, name, description, price, comparePrice, categoryId, brandId, category, sku, weight, lowStockAlert, stock, featured, image, features, specifications, published) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`);
   const piInsert = db.prepare('INSERT INTO product_images (id, productId, url, sortOrder) VALUES (?, ?, ?, ?)');
 
+  const MIN_PRICE = 500;
+  const filtered = items.filter(item => item.price >= MIN_PRICE);
+  console.log(`Filtered to ${filtered.length} products $${MIN_PRICE}+`);
+
   let inserted = 0;
-  for (const item of items) {
+  for (const item of filtered) {
     const pid = uuidv4();
     const catName = CATEGORY_MAP[item.category] || 'Accessories';
     const cat = catMap[catName];

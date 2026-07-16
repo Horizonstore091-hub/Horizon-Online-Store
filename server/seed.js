@@ -43,7 +43,7 @@ let products = [];
 async function loadProducts() {
   try {
     const res = await httpGet('https://dummyjson.com/products?limit=200');
-    products = (res.products || []).map(item => ({
+    products = (res.products || []).filter(item => item.price >= 500).map(item => ({
       name: item.title, description: item.description, price: item.price,
       comparePrice: item.discountPercentage ? +(item.price / (1 - item.discountPercentage / 100)).toFixed(2) : null,
       categoryId: CATEGORY_MAP[item.category] ?? 0, brandId: 0,
