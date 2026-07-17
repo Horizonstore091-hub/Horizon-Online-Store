@@ -176,7 +176,7 @@ export default function Home() {
               <p className="text-gray-500 dark:text-gray-400 mt-4 max-w-md mx-auto text-sm">Each item selected for exceptional quality, design, and craftsmanship.</p>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
-              {featured.map(p => <ProductCard key={p.id} product={p} />)}
+              {featured.slice(0, 4).map(p => <ProductCard key={p.id} product={p} />)}
             </div>
             <div className="text-center mt-12">
               <Link to="/shop" className="btn-primary">View All Products</Link>
